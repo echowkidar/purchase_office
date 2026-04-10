@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Loader2,
+  Plus,
 } from "lucide-react";
 
 const STEPS = [
@@ -147,6 +148,7 @@ export default function NewIndentPage() {
         {step === 0 && (
           <div className="space-y-5 animate-fade-in">
             <h2 className="text-xl font-bold text-amu-green">Basic Information</h2>
+            <p className="text-sm text-gray-500 mb-2">First, provide the purpose and urgency for this indent before reviewing items.</p>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -237,9 +239,15 @@ export default function NewIndentPage() {
             </div>
 
             {cart.items.length === 0 ? (
-              <div className="text-center py-8 text-gray-400">
-                <ShoppingCart size={40} className="mx-auto mb-2 opacity-30" />
-                <p>No items in cart. Go to the catalogue to add items.</p>
+              <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                <ShoppingCart size={48} className="mx-auto mb-4 text-gray-300" />
+                <p className="text-gray-500 mb-4 font-medium text-lg">Your cart is empty.</p>
+                <a
+                  href="/catalogue"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-amu-gold text-amu-green font-bold hover:bg-amu-gold-light transition-all shadow-md"
+                >
+                  <Plus size={20} /> Add Items from Catalogue
+                </a>
               </div>
             ) : (
               <div className="divide-y divide-gray-100">

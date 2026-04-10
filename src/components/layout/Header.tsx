@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useSession } from "next-auth/react";
-import { Bell, Menu, X } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import { Bell, Menu, X, ChevronDown, LogOut, User } from "lucide-react";
+import Link from "next/link";
 
 interface Notification {
   id: string;
@@ -22,7 +23,9 @@ export default function Header({
   const { data: session } = useSession();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
@@ -36,11 +39,14 @@ export default function Header({
       .catch(() => {});
   }, []);
 
-  // Close notification panel on outside click
+  // Close popups on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setShowNotifications(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setShowProfile(false);
       }
     }
     document.addEventListener("mousedown", handleClick);
@@ -139,14 +145,38 @@ export default function Header({
           )}
         </div>
 
-        {/* User Badge */}
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amu-green/5">
-          <div className="w-7 h-7 rounded-full bg-amu-green flex items-center justify-center text-white text-xs font-bold">
-            {session?.user?.name?.charAt(0) || "U"}
-          </div>
-          <span className="text-sm font-medium text-amu-green">
-            {session?.user?.name || "User"}
-          </span>
+        {/* User Profile Dropdown */}
+        <div className="relative hidden sm:block" ref={profileRef}>
+          <button
+            onClick={() => setShowProfile(!showProfile)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amu-green/5 hover:bg-amu-green/10 transition-colors"
+          >
+            <div className="w-7 h-7 rounded-full bg-amu-green flex items-center justify-center text-white text-xs font-bold">
+              {session?.user?.name?.charAt(0) || "U"}
+            </div>
+            <span className="text-sm font-medium text-amu-green">
+              {session?.user?.name || "User"}
+            </span>
+            <ChevronDown size={14} className="text-gray-500" />
+          </button>
+
+          {showProfile && (
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden animate-fade-in z-50">
+              <Link
+                href="/profile"
+                onClick={() => setShowProfile(false)}
+                className="flex items-center gap-2 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-100"
+              >
+                <User size={16} /> Update Profile
+              </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="flex items-center gap-2 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50"
+              >
+                <LogOut size={16} /> Sign Out
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

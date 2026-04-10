@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FileText, Eye, Printer, Search } from "lucide-react";
+import { FileText, Eye, Printer, Search, Trash2, Loader2 } from "lucide-react";
 
 interface Indent {
   id: string;
@@ -34,6 +34,20 @@ export default function IndentsListPage() {
   const filtered = indents.filter((i) =>
     i.requisitionNo.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this draft indent?")) return;
+    try {
+      const res = await fetch(`/api/indents/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setIndents((prev) => prev.filter((i) => i.id !== id));
+      } else {
+        alert("Failed to delete indent");
+      }
+    } catch {
+      alert("Failed to delete indent");
+    }
+  };
 
   const statusBadge = (status: string) => {
     const map: Record<string, string> = {
@@ -150,6 +164,15 @@ export default function IndentsListPage() {
                         >
                           <Printer size={16} />
                         </Link>
+                        {indent.status === "DRAFT" && (
+                          <button
+                            onClick={() => handleDelete(indent.id)}
+                            className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors"
+                            title="Delete Draft"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

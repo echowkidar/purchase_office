@@ -12,9 +12,9 @@ export async function POST(request: Request, context: unknown) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { params } = context as { params: { id: string } };
+    const { params } = context as { params: Promise<{ id: string }> };
+    const { id: indentId } = await params;
 
-    const indentId = params.id;
     if (!indentId) {
       return NextResponse.json({ error: "Missing indent ID" }, { status: 400 });
     }

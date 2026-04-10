@@ -104,7 +104,7 @@ export default function DashboardPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <Link href="/indents" className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-amu-green/30 hover:shadow-md transition-all cursor-pointer block">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Total Indents</p>
@@ -114,8 +114,8 @@ export default function DashboardPage() {
             </div>
             <FileText size={32} className="text-amu-green/20" />
           </div>
-        </div>
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        </Link>
+        <Link href="/indents" className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-status-pending/50 hover:shadow-md transition-all cursor-pointer block">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Pending</p>
@@ -125,8 +125,8 @@ export default function DashboardPage() {
             </div>
             <Clock size={32} className="text-status-pending/20" />
           </div>
-        </div>
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        </Link>
+        <Link href="/indents" className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-status-received/50 hover:shadow-md transition-all cursor-pointer block">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Received by CPO</p>
@@ -136,7 +136,7 @@ export default function DashboardPage() {
             </div>
             <CheckCircle size={32} className="text-status-received/20" />
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Recent Indents */}

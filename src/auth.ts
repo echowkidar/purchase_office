@@ -66,13 +66,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = (user as Record<string, unknown>).role as string;
         token.departmentId = (user as Record<string, unknown>).departmentId as string;
         token.departmentName = (user as Record<string, unknown>).departmentName as string;
         token.departmentCode = (user as Record<string, unknown>).departmentCode as string;
+      }
+      if (trigger === "update" && session?.name) {
+        token.name = session.name;
       }
       return token;
     },

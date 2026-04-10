@@ -51,7 +51,7 @@ export default function Sidebar() {
   if (role === "SUPER_ADMIN") links = adminLinks;
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-amu-green text-white flex flex-col z-40 shadow-xl">
+    <aside className="w-64 h-full bg-amu-green text-white flex flex-col shadow-xl">
       {/* Logo Section */}
       <div className="p-5 border-b border-white/10">
         <Link href="/" className="flex items-center gap-3">

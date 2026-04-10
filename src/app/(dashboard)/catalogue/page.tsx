@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Search, ShoppingCart, Plus, Minus, Package, X, Eye } from "lucide-react";
 import { useCartStore, CartItem } from "@/store/cartStore";
 
@@ -427,9 +428,9 @@ function CartSidebar({ onClose }: { onClose: () => void }) {
   const cart = useCartStore();
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-50 overflow-hidden">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl animate-slide-in-right flex flex-col">
+      <div className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl animate-slide-in-right flex flex-col">
         {/* Header */}
         <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-amu-green text-white">
           <h2 className="font-bold flex items-center gap-2">
@@ -516,12 +517,12 @@ function CartSidebar({ onClose }: { onClose: () => void }) {
             >
               Clear Cart
             </button>
-            <a
+            <Link
               href="/indents/new"
               className="block w-full py-2.5 rounded-lg bg-amu-gold text-amu-green font-semibold text-center hover:bg-amu-gold-light transition-all shadow-sm"
             >
-              Proceed to Indent →
-            </a>
+              Fill Details & Checkout →
+            </Link>
           </div>
         )}
       </div>

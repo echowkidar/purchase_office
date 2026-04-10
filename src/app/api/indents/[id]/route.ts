@@ -46,3 +46,39 @@ export async function GET(
     return NextResponse.json({ error: "Failed to fetch indent" }, { status: 500 });
   }
 }
+
+// DELETE /api/indents/:id
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+
+    const indent = await prisma.indent.findUnique({ where: { id } });
+
+    if (!indent) {
+      return NextResponse.json({ error: "Indent not found" }, { status: 404 });
+    }
+
+    if (session.user.role === "DEPT_USER" && indent.requestedById !== session.user.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    if (indent.status !== "DRAFT") {
+      return NextResponse.json({ error: "Only DRAFT indents can be removed." }, { status: 400 });
+    }
+
+    await prisma.indent.delete({ where: { id } });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting indent:", error);
+    return NextResponse.json({ error: "Failed to delete indent" }, { status: 500 });
+  }
+}
