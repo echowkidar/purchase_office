@@ -26,7 +26,11 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError(result.error);
+        if (result.error === "CredentialsSignin") {
+          setError("Invalid email/password, or your account is not yet activated by the administrator.");
+        } else {
+          setError(result.error);
+        }
       } else {
         router.push("/");
         router.refresh();
