@@ -190,5 +190,5 @@ model AuditLog {
 model SystemSetting {
   id                     String  @id @default("global")
   indentsEnabled         Boolean @default(true)
-  indentsDisabledMessage String? @default("Indent creation is temporarily disabled by the administrator.")
+  indentsDisabledMessage String? @default("Indent creation is temporarily disabled by the Central Purchase Office.")
 }

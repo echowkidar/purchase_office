@@ -41,7 +41,7 @@ export default function AdminUsersPage() {
       .then(data => {
         if (data) {
           setIndentsEnabled(data.indentsEnabled);
-          setDisabledMessage(data.indentsDisabledMessage || "Indent creation is temporarily disabled by the administrator.");
+          setDisabledMessage(data.indentsDisabledMessage || "Indent creation is temporarily disabled by the Central Purchase Office.");
         }
       })
       .catch(() => {});
