@@ -30,6 +30,17 @@ export default function EditItemPage() {
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!imageFile) {
+      setPreviewUrl(null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(imageFile);
+    setPreviewUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [imageFile]);
 
   const [variants, setVariants] = useState<
     { label: string; acType?: string; tonCapacity?: string; starRating?: string }[]
@@ -192,20 +203,11 @@ export default function EditItemPage() {
                     <X size={16} /> Remove
                   </button>
                 )}
-
-                {(imageFile || form.mainImage) && (
-                  <span className="text-sm text-amu-green font-medium flex items-center gap-1 truncate max-w-[120px]">
-                    <ImageIcon size={14} className="flex-shrink-0" />
-                    <span className="truncate">
-                      {imageFile ? imageFile.name : "Current Image"}
-                    </span>
-                  </span>
-                )}
               </div>
               
-              {!imageFile && form.mainImage && (
-                <div className="relative w-16 h-16 rounded-md border border-gray-200 overflow-hidden bg-gray-50 flex-shrink-0">
-                  <img src={form.mainImage} alt="Preview" className="w-full h-full object-contain p-1" />
+              {(previewUrl || (!imageFile && form.mainImage)) && (
+                <div className="relative w-32 h-32 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex-shrink-0 shadow-sm mt-1">
+                  <img src={previewUrl || form.mainImage} alt="Preview" className="w-full h-full object-contain p-1.5" />
                 </div>
               )}
             </div>

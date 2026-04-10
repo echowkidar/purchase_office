@@ -25,6 +25,17 @@ export default function NewItemPage() {
     categoryId: "",
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!imageFile) {
+      setPreviewUrl(null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(imageFile);
+    setPreviewUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [imageFile]);
 
   const [variants, setVariants] = useState<
     { label: string; acType?: string; tonCapacity?: string; starRating?: string }[]
@@ -132,24 +143,36 @@ export default function NewItemPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Item Image</label>
-            <div className="flex items-center gap-3">
-              <label
-                htmlFor="item-image"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors text-sm"
-              >
-                <Upload size={16} /> Choose Image
-              </label>
-              <input
-                type="file"
-                id="item-image"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-              />
-              {imageFile && (
-                <span className="text-sm text-amu-green font-medium flex items-center gap-1">
-                  <ImageIcon size={14} /> {imageFile.name}
-                </span>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <label
+                  htmlFor="item-image"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors text-sm whitespace-nowrap"
+                >
+                  <Upload size={16} /> Choose Image
+                </label>
+                <input
+                  type="file"
+                  id="item-image"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                />
+                {imageFile && (
+                  <button
+                    type="button"
+                    onClick={() => setImageFile(null)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-red-500 hover:bg-red-100 transition-colors text-sm whitespace-nowrap"
+                  >
+                    <X size={16} /> Remove
+                  </button>
+                )}
+              </div>
+              
+              {previewUrl && (
+                <div className="relative w-32 h-32 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex-shrink-0 shadow-sm">
+                  <img src={previewUrl} alt="Preview" className="w-full h-full object-contain p-1.5" />
+                </div>
               )}
             </div>
           </div>
