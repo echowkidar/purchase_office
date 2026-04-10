@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ──────────────────── ENUMS ────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  AFO_STAFF
+  DEPT_USER
+}
+
+enum IndentStatus {
+  DRAFT
+  SUBMITTED
+  CPO_RECEIVED
+  PROCESSING
+  CLOSED
+}
+
+enum Urgency {
+  NORMAL
+  URGENT
+}
+
+// ──────────────────── MODELS ────────────────────
+
+model User {
+  id           String      @id @default(cuid())
+  name         String
+  email        String      @unique
+  password     String      // bcrypt hashed
+  role         Role        @default(DEPT_USER)
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  designation  String?
+  phone        String?
+  isActive     Boolean     @default(false) // Admin must approve
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  indents      Indent[]
+
+  @@index([email])
+  @@index([departmentId])
+}
+
+model Department {
+  id       String   @id @default(cuid())
+  name     String   @unique
+  code     String   @unique // "CS", "LIB", "ME"
+  isActive Boolean  @default(true)
+  users    User[]
+  indents  Indent[]
+
+  @@index([code])
+}
+
+model ItemCategory {
+  id    String @id @default(cuid())
+  name  String @unique // "Equipment", "Furniture", "Air Conditioner"
+  slug  String @unique // "equipment", "furniture", "ac"
+  items Item[]
+}
+
+model Item {
+  id             String       @id @default(cuid())
+  name           String
+  description    String?
+  specifications String?
+  itemCode       String?
+  categoryId     String
+  category       ItemCategory @relation(fields: [categoryId], references: [id])
+  mainImage      String?      // Local file path: /uploads/items/xxx.jpg
+  isActive       Boolean      @default(true)
+  variants       ItemVariant[]
+  indentItems    IndentItem[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([categoryId])
+}
+
+model ItemVariant {
+  id          String  @id @default(cuid())
+  itemId      String
+  item        Item    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  label       String  // "8GB RAM", "1.5 Ton", "Revolving"
+  image       String? // Variant-specific image path
+  // AC specific fields
+  acType      String? // "Window" or "Split"
+  tonCapacity String? // "1", "1.5", "2", "3"
+  starRating  String? // "3", "5"
+
+  @@index([itemId])
+}
+
+model Indent {
+  id            String       @id @default(cuid())
+  requisitionNo String       @unique // CPO/CS/2025/0042
+  departmentId  String
+  department    Department   @relation(fields: [departmentId], references: [id])
+  requestedById String
+  requestedBy   User         @relation(fields: [requestedById], references: [id])
+  purpose       String       // Justification text
+  urgency       Urgency      @default(NORMAL)
+  status        IndentStatus @default(SUBMITTED)
+  items         IndentItem[]
+
+  // CPO Receipt info (filled when AFO marks "Received")
+  receiptNo   String?
+  receiptDate DateTime?
+  receivedAt  DateTime?  // Timestamp when marked received
+  receivedById String?   // Which AFO staff marked it
+
+  // Upload fields
+  uploadedFile String?   // Signed copy upload path
+  uploadedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([departmentId])
+  @@index([requestedById])
+  @@index([status])
+  @@index([requisitionNo])
+}
+
+model IndentItem {
+  id        String @id @default(cuid())
+  indentId  String
+  indent    Indent @relation(fields: [indentId], references: [id], onDelete: Cascade)
+  itemId    String
+  item      Item   @relation(fields: [itemId], references: [id])
+  variantId String?
+  quantity  Int
+
+  // 3 years history
+  year1Label   String? // e.g. "2022-23"
+  year1Qty     Int?
+  year1Remarks String?
+
+  year2Label   String? // e.g. "2023-24"
+  year2Qty     Int?
+  year2Remarks String?
+
+  year3Label   String? // e.g. "2024-25"
+  year3Qty     Int?
+  year3Remarks String?
+
+  remarks String? // General remarks for this item
+
+  @@index([indentId])
+  @@index([itemId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "INDENT_SUBMITTED", "INDENT_RECEIVED", "USER_ACTIVATED"
+  message   String
+  isRead    Boolean  @default(false)
+  sentVia   String   @default("dashboard") // "email", "dashboard", "both"
+  relatedId String?  // Optional: related entity ID
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  userName  String?
+  action    String   // "INDENT_CREATED", "ITEM_ADDED", "STATUS_CHANGED", "USER_ACTIVATED"
+  entity    String   // "Indent", "Item", "User", "Department"
+  entityId  String
+  details   Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity])
+  @@index([createdAt])
+}
