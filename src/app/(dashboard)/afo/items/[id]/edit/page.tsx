@@ -205,7 +205,7 @@ export default function EditItemPage() {
               
               {!imageFile && form.mainImage && (
                 <div className="relative w-16 h-16 rounded-md border border-gray-200 overflow-hidden bg-gray-50 flex-shrink-0">
-                  <Image src={form.mainImage} alt="Preview" fill className="object-contain p-1" />
+                  <img src={form.mainImage} alt="Preview" className="w-full h-full object-contain p-1" />
                 </div>
               )}
             </div>

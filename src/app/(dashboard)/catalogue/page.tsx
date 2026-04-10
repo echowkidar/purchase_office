@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, ShoppingCart, Plus, Minus, Package, X, Eye } from "lucide-react";
+import { Search, ShoppingCart, Plus, Minus, Package, X, Eye, Edit } from "lucide-react";
 import { useCartStore, CartItem } from "@/store/cartStore";
+import { useSession } from "next-auth/react";
 
 interface ItemVariant {
   id: string;
@@ -40,6 +41,9 @@ export default function CataloguePage() {
   const [category, setCategory] = useState("");
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [showCart, setShowCart] = useState(false);
+
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "AFO_STAFF" || session?.user?.role === "SUPER_ADMIN";
 
   const cart = useCartStore();
 
@@ -159,6 +163,7 @@ export default function CataloguePage() {
               item={item}
               onView={() => setSelectedItem(item)}
               onAddToCart={handleAddToCart}
+              isAdmin={isAdmin}
             />
           ))}
         </div>
@@ -187,10 +192,12 @@ function ItemCard({
   item,
   onView,
   onAddToCart,
+  isAdmin,
 }: {
   item: Item;
   onView: () => void;
   onAddToCart: (item: Item, variant: ItemVariant | null, qty: number) => void;
+  isAdmin?: boolean;
 }) {
   const [selectedVariant, setSelectedVariant] = useState<string>(
     item.variants[0]?.id || ""
@@ -207,11 +214,10 @@ function ItemCard({
         onClick={onView}
       >
         {item.mainImage ? (
-          <Image
+          <img
             src={item.mainImage}
             alt={item.name}
-            fill
-            className="object-contain p-4 group-hover:scale-105 transition-transform"
+            className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform"
           />
         ) : (
           <Package size={48} className="text-gray-300" />
@@ -221,6 +227,16 @@ function ItemCard({
             {item.category.name}
           </span>
         </div>
+        {isAdmin && (
+          <Link
+            href={`/afo/items/${item.id}/edit`}
+            className="absolute top-2 left-2 p-1.5 rounded-full bg-white/90 shadow-sm hover:bg-amu-gold/20 text-amu-gold transition-all"
+            onClick={(e) => e.stopPropagation()}
+            title="Edit Item"
+          >
+            <Edit size={14} />
+          </Link>
+        )}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -339,11 +355,10 @@ function ItemDetailModal({
           {/* Image */}
           <div className="relative w-full h-64 bg-gray-50 rounded-xl mb-4 flex items-center justify-center">
             {item.mainImage ? (
-              <Image
+              <img
                 src={item.mainImage}
                 alt={item.name}
-                fill
-                className="object-contain p-8"
+                className="w-full h-full object-contain p-8"
               />
             ) : (
               <Package size={64} className="text-gray-300" />
