@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Loader2,
   Plus,
+  X,
 } from "lucide-react";
 
 const STEPS = [
