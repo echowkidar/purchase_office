@@ -3,28 +3,36 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-// Public check (unauthenticated users or normal users checking if indents are enabled)
+// GET /api/settings
 export async function GET() {
   try {
-    let settings = await prisma.systemSetting.findUnique({
+    let settings = await prisma.systemSetting.findFirst({
       where: { id: "global" }
     });
 
-    // Seed if it doesn't exist
     if (!settings) {
       settings = await prisma.systemSetting.create({
-        data: { id: "global" }
+        data: { id: "global", indentsEnabled: true }
       });
     }
 
-    return NextResponse.json(settings);
+    return new NextResponse(JSON.stringify(settings), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
+    return NextResponse.json({ error: "Database error" }, { status: 500 });
   }
 }
 
-// Admin only update
+// PUT /api/settings
 export async function PUT(request: Request) {
   try {
     const session = await auth();
@@ -32,23 +40,24 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const { indentsEnabled, indentsDisabledMessage } = await request.json();
+    const body = await request.json();
+    const { indentsEnabled, indentsDisabledMessage } = body;
 
     const settings = await prisma.systemSetting.upsert({
       where: { id: "global" },
       update: {
-        indentsEnabled,
-        indentsDisabledMessage
+        indentsEnabled: indentsEnabled === true,
+        indentsDisabledMessage: String(indentsDisabledMessage)
       },
       create: {
         id: "global",
-        indentsEnabled,
-        indentsDisabledMessage
+        indentsEnabled: indentsEnabled === true,
+        indentsDisabledMessage: String(indentsDisabledMessage)
       }
     });
 
     return NextResponse.json(settings);
   } catch (error) {
-    return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update database" }, { status: 500 });
   }
 }
