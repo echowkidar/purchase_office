@@ -1,8 +1,16 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+
+class CustomAuthError extends CredentialsSignin {
+  constructor(message: string) {
+    super(message);
+    this.message = message;
+  }
+  code = "custom_error"
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma) as never,
@@ -31,11 +39,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
 
         if (!user) {
-          throw new Error("Invalid email or password");
+          throw new CustomAuthError("Invalid email or password");
         }
 
         if (!user.isActive) {
-          throw new Error("Your account is not yet activated. Please contact the administrator.");
+          throw new CustomAuthError("Your account is not yet activated. Please contact the administrator.");
         }
 
         const passwordMatch = await bcrypt.compare(
@@ -44,7 +52,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         );
 
         if (!passwordMatch) {
-          throw new Error("Invalid email or password");
+          throw new CustomAuthError("Invalid email or password");
         }
 
         return {
