@@ -42,9 +42,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new CustomAuthError("Invalid email or password");
         }
 
-        if (!user.isActive) {
-          throw new CustomAuthError("Your account is not yet activated. Please contact the administrator.");
-        }
+
 
         const passwordMatch = await bcrypt.compare(
           credentials.password as string,

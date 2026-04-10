@@ -27,7 +27,7 @@ export default function LoginPage() {
 
       if (result?.error) {
         if (result.error === "CredentialsSignin") {
-          setError("Invalid email/password, or your account is not yet activated by the administrator.");
+          setError("Invalid email or password.");
         } else {
           setError(result.error);
         }
