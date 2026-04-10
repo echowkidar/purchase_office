@@ -7,12 +7,14 @@ services:
       dockerfile: Dockerfile
     container_name: cpo-app
     restart: always
-    network_mode: host
+    ports:
+      - "3000:3000"
     environment:
-      DATABASE_URL: "postgresql://cpo_admin:amu_cpo@localhost:5432/amu_cpo_db"
+      DATABASE_URL: "postgresql://cpo_admin:amu_cpo@cpo-postgres:5432/amu_cpo_db"
       NEXTAUTH_URL: "http://localhost:3000"
-      NEXTAUTH_SECRET: "amu-cpo-prod-secret-2025-very-long-random-string-here"
-      AUTH_SECRET: "amu-cpo-prod-secret-2025-very-long-random-string-here"
+      NEXTAUTH_SECRET: "amu-cpo-prod-secret"
+      AUTH_SECRET: "amu-cpo-prod-secret"
+      
       SMTP_HOST: "smtp.gmail.com"
       SMTP_PORT: "587"
       SMTP_USER: "${SMTP_USER:-}"
