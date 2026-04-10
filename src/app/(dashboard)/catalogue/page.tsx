@@ -70,7 +70,7 @@ export default function CataloguePage() {
     const cartItem: Omit<CartItem, "id"> = {
       itemId: item.id,
       itemName: item.name,
-      itemImage: item.mainImage,
+      itemImage: variant?.image || item.mainImage,
       categoryName: item.category.name,
       variantId: variant?.id,
       variantLabel: variant?.label,
@@ -213,9 +213,9 @@ function ItemCard({
         className="relative h-56 bg-white flex items-center justify-center cursor-pointer p-2 border-b border-gray-50"
         onClick={onView}
       >
-        {item.mainImage ? (
+        {variant?.image || item.mainImage ? (
           <img
-            src={item.mainImage}
+            src={variant?.image || item.mainImage}
             alt={item.name}
             className="w-full h-full object-contain group-hover:scale-105 transition-transform"
           />
@@ -354,9 +354,9 @@ function ItemDetailModal({
 
           {/* Image */}
           <div className="relative w-full h-[320px] bg-white rounded-xl mb-6 flex items-center justify-center p-2 border border-gray-100 shadow-sm">
-            {item.mainImage ? (
+            {variant?.image || item.mainImage ? (
               <img
-                src={item.mainImage}
+                src={variant?.image || item.mainImage}
                 alt={item.name}
                 className="w-full h-full object-contain"
               />

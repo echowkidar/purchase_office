@@ -43,7 +43,7 @@ export default function EditItemPage() {
   }, [imageFile]);
 
   const [variants, setVariants] = useState<
-    { label: string; acType?: string; tonCapacity?: string; starRating?: string }[]
+    { label: string; image?: string; imageFile?: File | null; previewUrl?: string | null }[]
   >([]);
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export default function EditItemPage() {
           mainImage: data.mainImage || "",
         });
         if (data.variants && data.variants.length > 0) {
-          setVariants(data.variants.map((v: any) => ({ label: v.label, acType: v.acType, tonCapacity: v.tonCapacity, starRating: v.starRating })));
+          setVariants(data.variants.map((v: any) => ({ label: v.label, image: v.image || "" })));
         } else {
           setVariants([{ label: "" }]);
         }
@@ -81,7 +81,30 @@ export default function EditItemPage() {
     setLoading(true);
     setError("");
 
-    const validVariants = variants.filter((v) => v.label.trim());
+    const finalVariants = [];
+    for (const v of variants) {
+      if (!v.label.trim()) continue;
+      
+      let imgUrl = v.image;
+      if (v.imageFile) {
+        const formData = new FormData();
+        formData.append("file", v.imageFile);
+        try {
+          const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+          if (uploadRes.ok) {
+            const data = await uploadRes.json();
+            imgUrl = data.url;
+          }
+        } catch (e) {}
+      } else if (v.image === "") {
+        imgUrl = undefined;
+      }
+      
+      finalVariants.push({
+        label: v.label,
+        image: imgUrl
+      });
+    }
 
     let finalImageUrl = form.mainImage;
     if (imageFile) {
@@ -104,7 +127,7 @@ export default function EditItemPage() {
       body: JSON.stringify({
         ...rest,
         mainImage: finalImageUrl,
-        variants: validVariants.length > 0 ? validVariants : undefined,
+        variants: finalVariants.length > 0 ? finalVariants : undefined,
       }),
     });
 
@@ -246,27 +269,77 @@ export default function EditItemPage() {
               <Plus size={14} /> Add Variant
             </button>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {variants.map((v, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={v.label}
-                  onChange={(e) => {
-                    const updated = [...variants];
-                    updated[i] = { ...v, label: e.target.value };
-                    setVariants(updated);
-                  }}
-                  placeholder={`Variant ${i + 1} (e.g. 8GB RAM, Revolving)`}
-                  className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-amu-green/30"
-                />
-                <button
-                  type="button"
-                  onClick={() => setVariants(variants.filter((_, idx) => idx !== i))}
-                  className="p-1 text-red-400 hover:text-red-600"
-                >
-                  <X size={16} />
-                </button>
+              <div key={i} className="flex flex-col gap-2 p-3 border border-gray-100 rounded-lg bg-gray-50/50">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={v.label}
+                    onChange={(e) => {
+                      const updated = [...variants];
+                      updated[i] = { ...v, label: e.target.value };
+                      setVariants(updated);
+                    }}
+                    placeholder={`Variant ${i + 1} (e.g. 8GB RAM, Red)`}
+                    className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-amu-green/30"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setVariants(variants.filter((_, idx) => idx !== i))}
+                    className="p-1.5 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+                
+                <div className="flex items-center gap-3 mt-1">
+                  <label
+                    htmlFor={`variant-image-${i}`}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors text-xs"
+                  >
+                    <ImageIcon size={14} /> {v.imageFile || v.image ? "Change Variant Image" : "Add Specific Image (Optional)"}
+                  </label>
+                  <input
+                    type="file"
+                    id={`variant-image-${i}`}
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      const updated = [...variants];
+                      if (file) {
+                        updated[i].imageFile = file;
+                        updated[i].previewUrl = URL.createObjectURL(file);
+                        updated[i].image = ""; // invalidate old image
+                      } else {
+                        updated[i].imageFile = null;
+                        updated[i].previewUrl = null;
+                      }
+                      setVariants(updated);
+                    }}
+                  />
+                  {(v.previewUrl || v.image) && (
+                    <div className="flex items-center gap-2">
+                       <div className="relative w-8 h-8 rounded border border-gray-200 overflow-hidden bg-white">
+                          <img src={v.previewUrl || v.image} alt="Variant" className="w-full h-full object-contain" />
+                       </div>
+                       <button
+                         type="button"
+                         onClick={() => {
+                            const updated = [...variants];
+                            updated[i].imageFile = null;
+                            updated[i].previewUrl = null;
+                            updated[i].image = "";
+                            setVariants(updated);
+                         }}
+                         className="text-xs text-red-500 hover:text-red-700 font-medium"
+                       >
+                         Remove
+                       </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
