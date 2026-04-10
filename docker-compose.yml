@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cpo-app
+    restart: always
+    network_mode: host
+    environment:
+      DATABASE_URL: "postgresql://cpo_admin:amu_cpo@localhost:5432/amu_cpo_db"
+      NEXTAUTH_URL: "http://10.0.93.69:3000"
+      NEXTAUTH_SECRET: "amu-cpo-prod-secret-2025-very-long-random-string-here"
+      AUTH_SECRET: "amu-cpo-prod-secret-2025-very-long-random-string-here"
+      SMTP_HOST: "smtp.gmail.com"
+      SMTP_PORT: "587"
+      SMTP_USER: "${SMTP_USER:-}"
+      SMTP_PASS: "${SMTP_PASS:-}"
+      SMTP_FROM: "${SMTP_FROM:-CPO AMU <noreply@amu.ac.in>}"
+      NEXT_PUBLIC_APP_NAME: "AMU CPO Procurement Portal"
