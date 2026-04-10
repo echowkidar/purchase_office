@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import fs from "fs/promises";
+import path from "path";
 
 // GET /api/items/:id
 export async function GET(
@@ -39,6 +41,26 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
     const { variants, ...itemData } = body;
+
+    const existingItem = await prisma.item.findUnique({ where: { id } });
+
+    // Check if image is updated (or removed via empty string)
+    if (existingItem?.mainImage && itemData.mainImage !== undefined && existingItem.mainImage !== itemData.mainImage) {
+      if (existingItem.mainImage.startsWith("/uploads/items/")) {
+        try {
+          const filename = path.basename(existingItem.mainImage);
+          const filepath = path.join(process.cwd(), "public", "uploads", "items", filename);
+          await fs.unlink(filepath);
+        } catch (e) {
+          console.error("Failed to delete old image:", e);
+        }
+      }
+    }
+
+    // if mainImage is explicit empty string, we want it as null in DB
+    if (itemData.mainImage === "") {
+        itemData.mainImage = null;
+    }
 
     // Update item
     const item = await prisma.item.update({

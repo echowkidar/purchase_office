@@ -76,8 +76,9 @@ export default function CataloguePage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
+    <>
+      <div className="space-y-6 animate-fade-in">
+        {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-amu-green">Item Catalogue</h1>
@@ -163,6 +164,8 @@ export default function CataloguePage() {
         </div>
       )}
 
+      </div>
+
       {/* Item Detail Modal */}
       {selectedItem && (
         <ItemDetailModal
@@ -174,7 +177,7 @@ export default function CataloguePage() {
 
       {/* Cart Sidebar */}
       {showCart && <CartSidebar onClose={() => setShowCart(false)} />}
-    </div>
+    </>
   );
 }
 
@@ -510,16 +513,16 @@ function CartSidebar({ onClose }: { onClose: () => void }) {
 
         {/* Footer */}
         {cart.items.length > 0 && (
-          <div className="p-4 border-t border-gray-200 space-y-3">
+          <div className="p-5 border-t border-gray-100 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] space-y-3 shrink-0">
             <button
               onClick={() => cart.clearCart()}
-              className="w-full py-2 rounded-lg border border-red-200 text-red-500 text-sm hover:bg-red-50 transition-all"
+              className="w-full py-2.5 rounded-lg border border-red-200 text-red-500 text-sm font-semibold hover:bg-red-50 hover:border-red-300 transition-all"
             >
               Clear Cart
             </button>
             <Link
               href="/indents/new"
-              className="block w-full py-2.5 rounded-lg bg-amu-gold text-amu-green font-semibold text-center hover:bg-amu-gold-light transition-all shadow-sm"
+              className="block w-full py-3 rounded-lg bg-amu-gold text-amu-green font-bold text-center hover:bg-amu-gold-light hover:shadow-lg transition-all transform hover:-translate-y-0.5"
             >
               Fill Details & Checkout →
             </Link>

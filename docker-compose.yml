@@ -22,3 +22,8 @@ services:
       SMTP_PASS: "${SMTP_PASS:-}"
       SMTP_FROM: "${SMTP_FROM:-CPO AMU <noreply@amu.ac.in>}"
       NEXT_PUBLIC_APP_NAME: "AMU CPO Procurement Portal"
+    volumes:
+      - cpo_uploads:/app/public/uploads
+
+volumes:
+  cpo_uploads:
