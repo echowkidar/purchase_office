@@ -61,7 +61,7 @@ export async function POST(request: Request) {
         designation,
         phone,
         role: "DEPT_USER",
-        isActive: false,
+        isActive: true,
       },
     });
 
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         message:
-          "Registration successful! Your account is pending approval. You will be notified once activated.",
+          "Registration successful! You can now log in.",
         userId: user.id,
       },
       { status: 201 }
