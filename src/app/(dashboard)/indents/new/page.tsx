@@ -13,7 +13,6 @@ import {
   ArrowRight,
   Loader2,
   Plus,
-  X,
 } from "lucide-react";
 
 const STEPS = [
@@ -38,10 +37,6 @@ export default function NewIndentPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const [checkingSettings, setCheckingSettings] = useState(true);
-  const [indentsEnabled, setIndentsEnabled] = useState(true);
-  const [disabledMessage, setDisabledMessage] = useState("");
-
   // Step 1 data
   const [purpose, setPurpose] = useState("");
   const [urgency, setUrgency] = useState<"NORMAL" | "URGENT">("NORMAL");
@@ -52,20 +47,6 @@ export default function NewIndentPage() {
       setStep(1);
     }
   }, [step, cart.items.length]);
-
-  useEffect(() => {
-    const t = Date.now();
-    fetch(`/api/settings?t=${t}`, { cache: "no-store", headers: { 'Cache-Control': 'no-cache' } })
-      .then(res => res.json())
-      .then(data => {
-        if (data) {
-          setIndentsEnabled(data.indentsEnabled);
-          setDisabledMessage(data.indentsDisabledMessage || "Indent creation is temporarily disabled by the Central Purchase Office.");
-        }
-        setCheckingSettings(false);
-      })
-      .catch(() => setCheckingSettings(false));
-  }, []);
 
   const canProceed = () => {
     if (step === 0) return purpose.length >= 10;
@@ -119,34 +100,6 @@ export default function NewIndentPage() {
     }
   };
 
-  if (checkingSettings) {
-    return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="animate-spin text-amu-green h-8 w-8" />
-      </div>
-    );
-  }
-
-  if (!indentsEnabled) {
-    return (
-      <div className="max-w-2xl mx-auto mt-10 text-center py-16 bg-white rounded-xl shadow-sm border border-red-100 animate-fade-in font-primary text-amu-green">
-        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-          <X className="text-red-500 w-8 h-8" />
-        </div>
-        <h2 className="text-2xl font-bold text-red-600 mb-3">Indent Creation Disabled</h2>
-        <div className="bg-red-50 border border-red-100 p-6 rounded-xl mx-6 shadow-inner">
-           <p className="text-red-700 text-lg font-medium leading-relaxed italic">&ldquo;{disabledMessage}&rdquo;</p>
-        </div>
-        <button
-          onClick={() => router.push("/catalogue")}
-          className="mt-10 px-8 py-3 bg-amu-gold text-amu-green font-bold rounded-lg hover:bg-amu-gold-light transition-all shadow-lg active:scale-95"
-        >
-          View Catalogue Instead
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
       {/* Stepper */}
@@ -157,12 +110,13 @@ export default function NewIndentPage() {
             return (
               <div key={i} className="flex items-center flex-1">
                 <div
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${i === step
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
+                    i === step
                       ? "bg-amu-green text-white"
                       : i < step
-                        ? "bg-status-received/10 text-status-received"
-                        : "bg-gray-50 text-gray-400"
-                    }`}
+                      ? "bg-status-received/10 text-status-received"
+                      : "bg-gray-50 text-gray-400"
+                  }`}
                 >
                   <Icon size={16} />
                   <span className="text-sm font-medium hidden sm:inline">
@@ -171,8 +125,9 @@ export default function NewIndentPage() {
                 </div>
                 {i < STEPS.length - 1 && (
                   <div
-                    className={`flex-1 h-0.5 mx-2 rounded ${i < step ? "bg-status-received" : "bg-gray-200"
-                      }`}
+                    className={`flex-1 h-0.5 mx-2 rounded ${
+                      i < step ? "bg-status-received" : "bg-gray-200"
+                    }`}
                   />
                 )}
               </div>
@@ -247,19 +202,21 @@ export default function NewIndentPage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setUrgency("NORMAL")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${urgency === "NORMAL"
+                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+                    urgency === "NORMAL"
                       ? "border-amu-green bg-amu-green/5 text-amu-green"
                       : "border-gray-200 text-gray-500"
-                    }`}
+                  }`}
                 >
                   Normal
                 </button>
                 <button
                   onClick={() => setUrgency("URGENT")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${urgency === "URGENT"
+                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+                    urgency === "URGENT"
                       ? "border-red-500 bg-red-50 text-red-600"
                       : "border-gray-200 text-gray-500"
-                    }`}
+                  }`}
                 >
                   🔴 Urgent
                 </button>
@@ -359,8 +316,8 @@ export default function NewIndentPage() {
                           yi === 0
                             ? item.year1Qty ?? ""
                             : yi === 1
-                              ? item.year2Qty ?? ""
-                              : item.year3Qty ?? ""
+                            ? item.year2Qty ?? ""
+                            : item.year3Qty ?? ""
                         }
                         onChange={(e) => {
                           const val = e.target.value ? parseInt(e.target.value) : undefined;
@@ -368,14 +325,14 @@ export default function NewIndentPage() {
                             yi === 0
                               ? "year1Qty"
                               : yi === 1
-                                ? "year2Qty"
-                                : "year3Qty";
+                              ? "year2Qty"
+                              : "year3Qty";
                           const labelKey =
                             yi === 0
                               ? "year1Label"
                               : yi === 1
-                                ? "year2Label"
-                                : "year3Label";
+                              ? "year2Label"
+                              : "year3Label";
                           cart.updateHistory(item.id, {
                             [key]: val,
                             [labelKey]: label,

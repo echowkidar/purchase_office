@@ -19,24 +19,6 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // System settings state
-  const [indentsEnabled, setIndentsEnabled] = useState(true);
-  const [disabledMessage, setDisabledMessage] = useState("");
-  const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
-
-  const fetchSettings = () => {
-    const t = Date.now();
-    fetch(`/api/settings?t=${t}`, { cache: "no-store" })
-      .then(res => res.json())
-      .then(data => {
-        if (data) {
-          setIndentsEnabled(data.indentsEnabled);
-          setDisabledMessage(data.indentsDisabledMessage || "Indent creation is temporarily disabled by the Central Purchase Office.");
-        }
-      })
-      .catch(() => { });
-  };
-
   const fetchUsers = () => {
     fetch("/api/admin/users")
       .then((res) => res.json())
@@ -49,29 +31,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchUsers();
-    fetchSettings();
   }, []);
-
-  const saveSettings = async () => {
-    setIsUpdatingSettings(true);
-    try {
-      const res = await fetch("/api/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ indentsEnabled, indentsDisabledMessage: disabledMessage })
-      });
-      if (res.ok) {
-        alert("System settings updated successfully!");
-        fetchSettings(); // Re-verify from server
-      } else {
-        alert("Failed to update settings on server.");
-      }
-    } catch {
-      alert("Failed to update settings.");
-    } finally {
-      setIsUpdatingSettings(false);
-    }
-  };
 
   const toggleActive = async (userId: string, currentState: boolean) => {
     await fetch(`/api/admin/users/${userId}`, {
@@ -105,47 +65,6 @@ export default function AdminUsersPage() {
       <div>
         <h1 className="text-2xl font-bold text-amu-green">Manage Users</h1>
         <p className="text-sm text-gray-400">Activate, deactivate, and assign roles to users</p>
-      </div>
-
-      {/* Global Settings */}
-      <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-6 font-primary text-amu-green">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-bold">System Indent Status</h2>
-            <p className="text-sm text-gray-400">Enable or disable new indent creation across the portal.</p>
-          </div>
-          <button
-            onClick={() => setIndentsEnabled(!indentsEnabled)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${indentsEnabled ? 'bg-amu-green' : 'bg-red-400'
-              }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${indentsEnabled ? 'translate-x-6' : 'translate-x-1'
-                }`}
-            />
-          </button>
-        </div>
-
-        {!indentsEnabled && (
-          <div className="space-y-3 animate-fade-in mb-4">
-            <label className="block text-sm font-medium">Disable Message (Shown to users)</label>
-            <input
-              type="text"
-              value={disabledMessage}
-              onChange={(e) => setDisabledMessage(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-red-200 bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200 text-red-600"
-              placeholder="Why are indents disabled?"
-            />
-          </div>
-        )}
-
-        <button
-          onClick={saveSettings}
-          disabled={isUpdatingSettings}
-          className="px-6 py-2.5 bg-amu-gold hover:bg-amu-gold-light text-amu-green font-bold rounded-lg disabled:opacity-50 transition-all shadow-md active:scale-95"
-        >
-          {isUpdatingSettings ? "Saving Settings..." : "Save System Settings"}
-        </button>
       </div>
 
       {/* Stats */}
@@ -195,8 +114,9 @@ export default function AdminUsersPage() {
                 {users.map((user) => (
                   <tr
                     key={user.id}
-                    className={`hover:bg-gray-50 transition-colors ${!user.isActive ? "bg-yellow-50/50" : ""
-                      }`}
+                    className={`hover:bg-gray-50 transition-colors ${
+                      !user.isActive ? "bg-yellow-50/50" : ""
+                    }`}
                   >
                     <td className="p-3 font-medium">{user.name}</td>
                     <td className="p-3 text-gray-500 font-mono text-xs">{user.email}</td>
@@ -227,10 +147,11 @@ export default function AdminUsersPage() {
                     <td className="p-3 text-center">
                       <button
                         onClick={() => toggleActive(user.id, user.isActive)}
-                        className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${user.isActive
+                        className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                          user.isActive
                             ? "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
                             : "bg-green-50 text-green-600 hover:bg-green-100 border border-green-200"
-                          }`}
+                        }`}
                       >
                         {user.isActive ? "Deactivate" : "Activate"}
                       </button>
