@@ -210,27 +210,27 @@ function ItemCard({
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all group">
       {/* Image */}
       <div
-        className="relative h-40 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center cursor-pointer"
+        className="relative h-56 bg-white flex items-center justify-center cursor-pointer p-2 border-b border-gray-50"
         onClick={onView}
       >
         {item.mainImage ? (
           <img
             src={item.mainImage}
             alt={item.name}
-            className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform"
+            className="w-full h-full object-contain group-hover:scale-105 transition-transform"
           />
         ) : (
           <Package size={48} className="text-gray-300" />
         )}
-        <div className="absolute top-2 right-2">
-          <span className="px-2 py-0.5 rounded-full bg-amu-green/10 text-amu-green text-[10px] font-medium">
+        <div className="absolute top-2 right-2 z-10">
+          <span className="px-2 py-0.5 rounded-full bg-white/90 text-amu-green text-[10px] font-medium shadow-[0_2px_4px_rgba(0,0,0,0.05)] backdrop-blur-sm border border-gray-100">
             {item.category.name}
           </span>
         </div>
         {isAdmin && (
           <Link
             href={`/afo/items/${item.id}/edit`}
-            className="absolute top-2 left-2 p-1.5 rounded-full bg-white/90 shadow-sm hover:bg-amu-gold/20 text-amu-gold transition-all"
+            className="absolute top-2 left-2 z-10 p-1.5 rounded-full bg-white/90 shadow-[0_2px_4px_rgba(0,0,0,0.05)] border border-gray-100 hover:bg-white text-amu-gold transition-all"
             onClick={(e) => e.stopPropagation()}
             title="Edit Item"
           >
@@ -242,7 +242,7 @@ function ItemCard({
             e.stopPropagation();
             onView();
           }}
-          className="absolute bottom-2 right-2 p-1.5 rounded-full bg-white/90 shadow-sm hover:bg-white transition-all opacity-0 group-hover:opacity-100"
+          className="absolute bottom-2 right-2 z-10 p-1.5 rounded-full bg-white/90 shadow-[0_2px_4px_rgba(0,0,0,0.05)] border border-gray-100 hover:bg-white transition-all opacity-0 group-hover:opacity-100"
         >
           <Eye size={14} className="text-gray-600" />
         </button>
@@ -353,12 +353,12 @@ function ItemDetailModal({
           </div>
 
           {/* Image */}
-          <div className="relative w-full h-64 bg-gray-50 rounded-xl mb-4 flex items-center justify-center">
+          <div className="relative w-full h-[320px] bg-white rounded-xl mb-6 flex items-center justify-center p-2 border border-gray-100 shadow-sm">
             {item.mainImage ? (
               <img
                 src={item.mainImage}
                 alt={item.name}
-                className="w-full h-full object-contain p-8"
+                className="w-full h-full object-contain"
               />
             ) : (
               <Package size={64} className="text-gray-300" />
