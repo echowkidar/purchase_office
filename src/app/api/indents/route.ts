@@ -125,7 +125,7 @@ export async function POST(request: Request) {
         requestedById: user.id,
         purpose: parsed.data.purpose,
         urgency: parsed.data.urgency,
-        status: "SUBMITTED",
+        status: "DRAFT",
         items: {
           create: parsed.data.items.map((item) => ({
             itemId: item.itemId,
@@ -166,39 +166,19 @@ export async function POST(request: Request) {
     await prisma.notification.create({
       data: {
         userId: session.user.id,
-        type: "INDENT_SUBMITTED",
-        message: `Your indent ${requisitionNo} has been submitted successfully.`,
-        sentVia: "both",
+        type: "INDENT_DRAFTED",
+        message: `Your indent ${requisitionNo} has been generated. Please print, sign, and upload it to finalize submission.`,
+        sentVia: "dashboard",
       },
     });
 
     // Send email to user
     try {
+      // Re-using the submitted email template for now, but in reality it's just a "Generated" email.
       const emailData = emailIndentSubmitted(requisitionNo, user.department.name);
       await sendEmail({ to: user.email, ...emailData });
     } catch (e) {
       console.error("Failed to send email:", e);
-    }
-
-    // Notify AFO staff
-    try {
-      const afoUsers = await prisma.user.findMany({
-        where: { role: { in: ["AFO_STAFF", "SUPER_ADMIN"] }, isActive: true },
-      });
-      const alertEmail = emailNewIndentAlert(requisitionNo, user.department.name, indent.items.length);
-      for (const afo of afoUsers) {
-        await prisma.notification.create({
-          data: {
-            userId: afo.id,
-            type: "NEW_INDENT",
-            message: `New indent ${requisitionNo} from ${user.department.name} (${indent.items.length} items)`,
-            sentVia: "both",
-          },
-        });
-        await sendEmail({ to: afo.email, ...alertEmail }).catch(() => {});
-      }
-    } catch (e) {
-      console.error("Failed to notify AFO:", e);
     }
 
     return NextResponse.json(indent, { status: 201 });

@@ -42,8 +42,8 @@ export default function NewIndentPage() {
 
   // Redirect if cart is empty (on step > 0)
   useEffect(() => {
-    if (step > 0 && cart.items.length === 0) {
-      setStep(0);
+    if (step > 1 && cart.items.length === 0) {
+      setStep(1);
     }
   }, [step, cart.items.length]);
 

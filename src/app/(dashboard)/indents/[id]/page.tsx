@@ -9,6 +9,8 @@ import {
   CheckCircle,
   Clock,
   FileText,
+  Upload,
+  Loader2,
 } from "lucide-react";
 
 interface IndentDetail {
@@ -47,6 +49,8 @@ export default function IndentDetailPage() {
   const [indent, setIndent] = useState<IndentDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const [uploading, setUploading] = useState(false);
+
   useEffect(() => {
     fetch(`/api/indents/${id}`)
       .then((res) => res.json())
@@ -75,6 +79,10 @@ export default function IndentDetailPage() {
   }
 
   const statusConfig: Record<string, { color: string; icon: React.ReactNode }> = {
+    DRAFT: {
+      color: "bg-gray-100 text-gray-600",
+      icon: <FileText size={14} />,
+    },
     SUBMITTED: {
       color: "badge-submitted",
       icon: <Clock size={14} />,
@@ -165,6 +173,64 @@ export default function IndentDetailPage() {
           <p className="mt-1 text-gray-700">{indent.purpose}</p>
         </div>
       </div>
+
+      {/* Upload Signed Copy Section */}
+      {indent.status === "DRAFT" && (
+        <div className="bg-amber-50 rounded-xl shadow-sm border border-amber-200 p-6 flex flex-col md:flex-row items-center justify-between gap-4 animate-fade-in">
+          <div>
+            <h3 className="font-bold text-amber-800 flex items-center gap-2">
+              <FileText size={18} /> Action Required: Upload Signed Copy
+            </h3>
+            <p className="text-amber-700 text-sm mt-1">
+              Please print this indent, sign it, and upload the scanned PDF copy to finalize submission to CPO.
+            </p>
+          </div>
+          <div className="flex-shrink-0">
+            <input
+              type="file"
+              id="upload-signed-pdf"
+              className="hidden"
+              accept=".pdf,image/png,image/jpeg"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setUploading(true);
+                const formData = new FormData();
+                formData.append("file", file);
+                try {
+                  const res = await fetch(`/api/indents/${indent.id}/upload`, {
+                    method: "POST",
+                    body: formData,
+                  });
+                  if (res.ok) {
+                    window.location.reload();
+                  } else {
+                    alert("Upload failed. Try again.");
+                  }
+                } catch {
+                  alert("Upload failed. Try again.");
+                } finally {
+                  setUploading(false);
+                }
+              }}
+            />
+            <label
+              htmlFor="upload-signed-pdf"
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all shadow-md cursor-pointer ${
+                uploading
+                  ? "bg-gray-400 text-white cursor-not-allowed opacity-70"
+                  : "bg-amu-gold text-amu-green hover:bg-amu-gold-light"
+              }`}
+            >
+              {uploading ? (
+                <><Loader2 size={16} className="animate-spin" /> Uploading...</>
+              ) : (
+                <><Upload size={16} /> Upload Signed Indent</>
+              )}
+            </label>
+          </div>
+        </div>
+      )}
 
       {/* Items Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

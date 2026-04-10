@@ -116,11 +116,11 @@ export default function PrintLetterPage() {
                 className="rounded-full"
               />
               <div className="text-center">
-                <h1 className="text-2xl font-bold text-amu-green" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
-                  ALIGARH MUSLIM UNIVERSITY, ALIGARH
+                <h1 className="text-3xl font-bold text-amu-green uppercase tracking-wide" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                  CENTRAL PURCHASE OFFICE
                 </h1>
-                <p className="text-sm text-gray-500 mt-1">
-                  (Central Purchase Office)
+                <p className="text-lg font-medium text-gray-700 mt-2" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                  Aligarh Muslim University, Aligarh
                 </p>
               </div>
             </div>
@@ -180,7 +180,6 @@ export default function PrintLetterPage() {
 
             {/* Body */}
             <div className="text-sm leading-relaxed">
-              <p>Respected Sir/Madam,</p>
               <p className="mt-2">
                 Kindly arrange to purchase the following items for the Department
                 of {indent.department.name} as per the details given below:
