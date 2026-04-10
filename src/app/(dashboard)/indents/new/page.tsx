@@ -36,6 +36,10 @@ export default function NewIndentPage() {
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  
+  const [checkingSettings, setCheckingSettings] = useState(true);
+  const [indentsEnabled, setIndentsEnabled] = useState(true);
+  const [disabledMessage, setDisabledMessage] = useState("");
 
   // Step 1 data
   const [purpose, setPurpose] = useState("");
@@ -47,6 +51,19 @@ export default function NewIndentPage() {
       setStep(1);
     }
   }, [step, cart.items.length]);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then(res => res.json())
+      .then(data => {
+        if (data) {
+          setIndentsEnabled(data.indentsEnabled);
+          setDisabledMessage(data.indentsDisabledMessage || "Indent creation is temporarily disabled by the administrator.");
+        }
+        setCheckingSettings(false);
+      })
+      .catch(() => setCheckingSettings(false));
+  }, []);
 
   const canProceed = () => {
     if (step === 0) return purpose.length >= 10;
@@ -99,6 +116,32 @@ export default function NewIndentPage() {
       setSubmitting(false);
     }
   };
+
+  if (checkingSettings) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="animate-spin text-amu-green h-8 w-8" />
+      </div>
+    );
+  }
+
+  if (!indentsEnabled) {
+    return (
+      <div className="max-w-2xl mx-auto mt-10 text-center py-16 bg-white rounded-xl shadow-sm border border-red-100 animate-fade-in">
+        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <X className="text-red-500 w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-bold text-red-600 mb-3">Indent Creation Disabled</h2>
+        <p className="text-gray-600 text-lg px-6 font-medium bg-red-50 py-3 mx-6 rounded-lg border border-red-100">{disabledMessage}</p>
+        <button
+          onClick={() => router.push("/catalogue")}
+          className="mt-8 px-6 py-2.5 bg-amu-gold text-amu-green font-bold rounded-lg hover:bg-amu-gold-light transition-all shadow-md"
+        >
+          View Catalogue Instead
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">

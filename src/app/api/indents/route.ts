@@ -91,6 +91,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const settings = await prisma.systemSetting.findUnique({ where: { id: "global" } });
+    if (settings && !settings.indentsEnabled) {
+      return NextResponse.json(
+        { error: settings.indentsDisabledMessage || "Indent creation is temporarily disabled." },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const parsed = createIndentSchema.safeParse(body);
 
