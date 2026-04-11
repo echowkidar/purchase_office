@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
 import { useSession } from "next-auth/react";
@@ -30,6 +30,14 @@ const YEAR_LABELS = [
 ];
 
 export default function NewIndentPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-10">Loading...</div>}>
+      <NewIndentContent />
+    </Suspense>
+  );
+}
+
+function NewIndentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();

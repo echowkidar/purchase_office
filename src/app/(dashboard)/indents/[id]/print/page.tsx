@@ -28,6 +28,7 @@ interface IndentDetail {
     year3Label?: string;
     year3Qty?: number;
     remarks?: string;
+    usedByName?: string;
     item: {
       name: string;
       category: { name: string };
