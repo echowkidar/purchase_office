@@ -62,6 +62,7 @@ export const indentItemSchema = z.object({
   year3Qty: z.number().int().min(0).optional(),
   year3Remarks: z.string().optional(),
   remarks: z.string().optional(),
+  usedByName: z.string().optional(),
 });
 
 export const createIndentSchema = z.object({

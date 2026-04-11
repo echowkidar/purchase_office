@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
 import { useSession } from "next-auth/react";
 import {
@@ -31,15 +31,41 @@ const YEAR_LABELS = [
 
 export default function NewIndentPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const cart = useCartStore();
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [initialized, setInitialized] = useState(false);
 
-  // Step 1 data
+  // Step 1 data — restored from localStorage if user returns from catalogue
   const [purpose, setPurpose] = useState("");
   const [urgency, setUrgency] = useState<"NORMAL" | "URGENT">("NORMAL");
+
+  // Restore saved basic info and auto-skip to items step if coming back from cart
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("cpo-indent-basicinfo");
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.purpose) setPurpose(data.purpose);
+        if (data.urgency) setUrgency(data.urgency);
+      }
+    } catch {}
+    // If coming from cart sidebar, jump directly to step 1 (items)
+    const fromCart = searchParams.get("step");
+    if (fromCart === "items" && cart.items.length > 0) {
+      setStep(1);
+    }
+    setInitialized(true);
+  }, []);
+
+  // Save basic info whenever it changes so it survives catalogue navigation
+  useEffect(() => {
+    if (!initialized) return;
+    localStorage.setItem("cpo-indent-basicinfo", JSON.stringify({ purpose, urgency }));
+  }, [purpose, urgency, initialized]);
 
   // Redirect if cart is empty (on step > 0)
   useEffect(() => {
@@ -80,6 +106,7 @@ export default function NewIndentPage() {
             year3Qty: item.year3Qty || 0,
             year3Remarks: item.year3Remarks || "",
             remarks: item.remarks || "",
+            usedByName: item.usedByName || "",
           })),
         }),
       });
@@ -92,6 +119,7 @@ export default function NewIndentPage() {
       }
 
       cart.clearCart();
+      localStorage.removeItem("cpo-indent-basicinfo");
       router.push(`/indents/${data.id}`);
     } catch {
       setError("Something went wrong. Please try again.");
@@ -250,24 +278,37 @@ export default function NewIndentPage() {
                 </a>
               </div>
             ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="space-y-3">
                 {cart.items.map((item, idx) => (
-                  <div key={item.id} className="py-3 flex items-center justify-between">
-                    <div>
-                      <span className="text-sm text-gray-400 mr-2">{idx + 1}.</span>
-                      <span className="font-medium text-amu-green">{item.itemName}</span>
-                      {item.variantLabel && (
-                        <span className="text-gray-400 text-sm"> — {item.variantLabel}</span>
-                      )}
+                  <div key={item.id} className="p-3 border border-gray-100 rounded-xl bg-gray-50/50">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-sm text-gray-400 mr-2">{idx + 1}.</span>
+                        <span className="font-medium text-amu-green">{item.itemName}</span>
+                        {item.variantLabel && (
+                          <span className="text-gray-400 text-sm"> — {item.variantLabel}</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-gray-500">Qty: {item.quantity}</span>
+                        <button
+                          onClick={() => cart.removeItem(item.id)}
+                          className="text-red-400 hover:text-red-600 text-xs"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-gray-500">Qty: {item.quantity}</span>
-                      <button
-                        onClick={() => cart.removeItem(item.id)}
-                        className="text-red-400 hover:text-red-600 text-xs"
-                      >
-                        Remove
-                      </button>
+                    <div className="mt-2">
+                      <input
+                        type="text"
+                        placeholder="Name of person who will use this item (optional)"
+                        value={item.usedByName || ""}
+                        onChange={(e) =>
+                          cart.updateHistory(item.id, { usedByName: e.target.value })
+                        }
+                        className="w-full px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-amu-green/30 bg-white"
+                      />
                     </div>
                   </div>
                 ))}
@@ -396,6 +437,7 @@ export default function NewIndentPage() {
                       </th>
                     ))}
                     <th className="text-left py-2 text-gray-500 font-medium">Remarks</th>
+                    <th className="text-left py-2 text-gray-500 font-medium">Used By</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -422,6 +464,9 @@ export default function NewIndentPage() {
                       </td>
                       <td className="py-2 text-gray-500 text-xs">
                         {item.remarks || "—"}
+                      </td>
+                      <td className="py-2 text-gray-500 text-xs">
+                        {item.usedByName || "—"}
                       </td>
                     </tr>
                   ))}

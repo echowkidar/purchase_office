@@ -536,10 +536,10 @@ function CartSidebar({ onClose }: { onClose: () => void }) {
               Clear Cart
             </button>
             <Link
-              href="/indents/new"
+              href="/indents/new?step=items"
               className="block w-full py-3 rounded-lg bg-amu-gold text-amu-green font-bold text-center hover:bg-amu-gold-light hover:shadow-lg transition-all transform hover:-translate-y-0.5"
             >
-              Fill Details & Checkout →
+              Proceed to Checkout →
             </Link>
           </div>
         )}

@@ -21,6 +21,7 @@ export interface CartItem {
   year3Qty?: number;
   year3Remarks?: string;
   remarks?: string;
+  usedByName?: string; // Name of the person who will use this item
 }
 
 interface CartState {

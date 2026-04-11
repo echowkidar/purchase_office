@@ -153,6 +153,7 @@ model IndentItem {
   year3Remarks String?
 
   remarks String? // General remarks for this item
+  usedByName String? // Name of the person who will use this item
 
   @@index([indentId])
   @@index([itemId])

@@ -141,6 +141,7 @@ export async function POST(request: Request) {
             year3Qty: item.year3Qty,
             year3Remarks: item.year3Remarks,
             remarks: item.remarks,
+            usedByName: item.usedByName,
           })),
         },
       },

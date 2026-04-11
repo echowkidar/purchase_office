@@ -181,7 +181,7 @@ export default function PrintLetterPage() {
             {/* Body */}
             <div className="text-sm leading-relaxed">
               <p className="mt-2">
-                Kindly arrange to purchase the following items for the Department
+                Kindly arrange to provide the following items for the Department
                 of {indent.department.name} as per the details given below:
               </p>
             </div>
@@ -205,6 +205,7 @@ export default function PrintLetterPage() {
                     <th className="border border-gray-300 p-2 text-center">
                       {indent.items[0]?.year3Label || "Yr 3"}
                     </th>
+                    <th className="border border-gray-300 p-2 text-left">Used By</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -235,6 +236,9 @@ export default function PrintLetterPage() {
                         </td>
                         <td className="border border-gray-300 p-2 text-center font-mono">
                           {indentItem.year3Qty ?? 0}
+                        </td>
+                        <td className="border border-gray-300 p-2 text-sm">
+                          {indentItem.usedByName || "—"}
                         </td>
                       </tr>
                     );
