@@ -22,6 +22,8 @@ interface ReportItem {
   };
   indent: {
     requisitionNo: string;
+    receiptNo: string | null;
+    receiptDate: Date | null;
     createdAt: string;
     status: string;
     department: { name: string; code: string };
@@ -80,7 +82,9 @@ export default function AFOReportsPage() {
     if (items.length === 0) return;
 
     const data = filteredAndSortedItems.map(item => ({
-      "Date": new Date(item.indent.createdAt).toLocaleDateString("en-IN"),
+      "Receipt No.": item.indent.receiptNo || "—",
+      "Receipt Date": item.indent.receiptDate ? new Date(item.indent.receiptDate).toLocaleDateString("en-IN") : "—",
+      "Indent Date": new Date(item.indent.createdAt).toLocaleDateString("en-IN"),
       "Requisition No.": item.indent.requisitionNo,
       "Department": item.indent.department.name,
       "Requested By": item.indent.requestedBy?.name || "",
@@ -317,11 +321,13 @@ export default function AFOReportsPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-y border-gray-100">
                 <tr>
+                  <th className="text-left p-3 text-gray-500 font-medium">Receipt No.</th>
+                  <th className="text-left p-3 text-gray-500 font-medium">Receipt Date</th>
                   <th 
                     className="text-left p-3 text-gray-500 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
                     onClick={() => handleSort("date")}
                   >
-                    <div className="flex items-center gap-1">Date <ArrowUpDown size={14}/></div>
+                    <div className="flex items-center gap-1">Indent Date <ArrowUpDown size={14}/></div>
                   </th>
                   <th 
                     className="text-left p-3 text-gray-500 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
@@ -343,12 +349,18 @@ export default function AFOReportsPage() {
               <tbody className="divide-y divide-gray-100">
                 {filteredAndSortedItems.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-4 text-center text-gray-400">No items found matching criteria.</td>
+                    <td colSpan={8} className="p-4 text-center text-gray-400">No items found matching criteria.</td>
                   </tr>
                 ) : (
                   filteredAndSortedItems.map((item) => (
                     <tr key={item.id} className="hover:bg-gray-50 transition-colors group">
-                      <td className="p-3 text-gray-500">
+                      <td className="p-3 font-mono text-xs text-amu-green">
+                        {item.indent.receiptNo || "—"}
+                      </td>
+                      <td className="p-3 text-gray-500 text-xs">
+                        {item.indent.receiptDate ? new Date(item.indent.receiptDate).toLocaleDateString("en-IN") : "—"}
+                      </td>
+                      <td className="p-3 text-gray-500 text-xs">
                         {new Date(item.indent.createdAt).toLocaleDateString("en-IN", {
                           day: "numeric", month: "short", year: "numeric"
                         })}

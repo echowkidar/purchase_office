@@ -197,7 +197,8 @@ export default function AFODashboardPage() {
                   <th className="text-left p-3 text-gray-500 font-medium">Requested By</th>
                   <th className="text-center p-3 text-gray-500 font-medium">Items</th>
                   <th className="text-center p-3 text-gray-500 font-medium">Status</th>
-                  <th className="text-left p-3 text-gray-500 font-medium">Receipt</th>
+                  <th className="text-left p-3 text-gray-500 font-medium">Receipt No.</th>
+                  <th className="text-left p-3 text-gray-500 font-medium">Receipt Date</th>
                   <th className="text-center p-3 text-gray-500 font-medium">Actions</th>
                 </tr>
               </thead>
@@ -223,6 +224,9 @@ export default function AFODashboardPage() {
                     </td>
                     <td className="p-3 font-mono text-xs">
                       {indent.receiptNo || "—"}
+                    </td>
+                    <td className="p-3 text-gray-500 text-xs">
+                      {indent.receiptDate ? new Date(indent.receiptDate).toLocaleDateString("en-IN") : "—"}
                     </td>
                     <td className="p-3">
                       <div className="flex items-center justify-center gap-2">
