@@ -4,18 +4,15 @@ import { auth } from "@/auth";
 import { receiveIndentSchema } from "@/lib/validators";
 import { sendEmail, emailIndentReceived } from "@/lib/sendEmail";
 
-// PATCH /api/indents/:id/status — Update indent status (AFO/Admin)
+// PATCH /api/indents/:id/status — Update indent status
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
-    if (
-      !session ||
-      (session.user.role !== "AFO_STAFF" && session.user.role !== "SUPER_ADMIN")
-    ) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = await params;
@@ -28,6 +25,15 @@ export async function PATCH(
 
     if (!indent) {
       return NextResponse.json({ error: "Indent not found" }, { status: 404 });
+    }
+
+    // DEPT_USER can only submit their own DRAFT indent
+    if (session.user.role === "DEPT_USER") {
+      if (body.status !== "SUBMITTED" || indent.status !== "DRAFT" || indent.requestedById !== session.user.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      }
+    } else if (session.user.role !== "AFO_STAFF" && session.user.role !== "SUPER_ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     // If marking as received, require receipt no and date

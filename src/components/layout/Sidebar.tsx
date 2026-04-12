@@ -34,7 +34,9 @@ export default function Sidebar() {
     { href: "/afo/dashboard", label: "AFO Dashboard", icon: LayoutDashboard },
     { href: "/afo/items", label: "Manage Items", icon: Package },
     { href: "/afo/reports", label: "Reports", icon: BarChart3 },
-    { href: "/catalogue", label: "View Catalogue", icon: ShoppingCart },
+    { href: "/catalogue", label: "Item Catalogue", icon: ShoppingCart },
+    { href: "/indents/new", label: "New Indent", icon: ClipboardList },
+    { href: "/indents", label: "All Indents", icon: FileText },
   ];
 
   const adminLinks = [

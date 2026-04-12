@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import {
   Printer,
   ArrowLeft,
   CheckCircle,
   Clock,
   FileText,
-  Upload,
   Loader2,
+  Send,
+  Pencil,
 } from "lucide-react";
 
 interface IndentDetail {
@@ -22,6 +24,7 @@ interface IndentDetail {
   createdAt: string;
   receiptNo?: string;
   receiptDate?: string;
+  requestedById: string;
   department: { name: string; code: string };
   requestedBy: { name: string; designation: string };
   items: {
@@ -35,6 +38,7 @@ interface IndentDetail {
     year3Label?: string;
     year3Qty?: number;
     remarks?: string;
+    usedByName?: string;
     item: {
       name: string;
       itemCode: string;
@@ -46,10 +50,11 @@ interface IndentDetail {
 
 export default function IndentDetailPage() {
   const { id } = useParams();
+  const router = useRouter();
+  const { data: session } = useSession();
   const [indent, setIndent] = useState<IndentDetail | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetch(`/api/indents/${id}`)
@@ -60,6 +65,51 @@ export default function IndentDetailPage() {
       })
       .catch(() => setLoading(false));
   }, [id]);
+
+  const role = session?.user?.role;
+  const userId = session?.user?.id;
+
+  // Check if current user can edit this indent
+  const canEdit =
+    indent &&
+    ((role === "DEPT_USER" && indent.status === "DRAFT" && indent.requestedById === userId) ||
+      ((role === "AFO_STAFF" || role === "SUPER_ADMIN") &&
+        (indent.status === "CPO_RECEIVED" || indent.status === "DRAFT")));
+
+  // Check if current user can submit (DRAFT → SUBMITTED)
+  const canSubmit =
+    indent &&
+    indent.status === "DRAFT" &&
+    (indent.requestedById === userId || role === "AFO_STAFF" || role === "SUPER_ADMIN");
+
+  const handleFinalSubmit = async () => {
+    if (
+      !confirm(
+        "Are you sure you want to submit this indent?\n\nOnce submitted, the indent will be sent to CPO for processing. This action cannot be undone."
+      )
+    )
+      return;
+
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/indents/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "SUBMITTED" }),
+      });
+      if (res.ok) {
+        // Reload to show updated status
+        window.location.reload();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to submit indent");
+      }
+    } catch {
+      alert("Failed to submit. Try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -108,12 +158,22 @@ export default function IndentDetailPage() {
         >
           <ArrowLeft size={16} /> Back to Indents
         </Link>
-        <Link
-          href={`/indents/${indent.id}/print`}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amu-gold text-amu-green font-semibold hover:bg-amu-gold-light transition-all shadow-sm"
-        >
-          <Printer size={16} /> Print / Download
-        </Link>
+        <div className="flex items-center gap-2">
+          {canEdit && (
+            <Link
+              href={`/indents/${indent.id}/edit`}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-amu-green/20 text-amu-green font-semibold hover:bg-amu-green/5 transition-all text-sm"
+            >
+              <Pencil size={16} /> Edit
+            </Link>
+          )}
+          <Link
+            href={`/indents/${indent.id}/print`}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amu-gold text-amu-green font-semibold hover:bg-amu-gold-light transition-all shadow-sm"
+          >
+            <Printer size={16} /> Print / Download
+          </Link>
+        </div>
       </div>
 
       {/* Info Card */}
@@ -174,61 +234,32 @@ export default function IndentDetailPage() {
         </div>
       </div>
 
-      {/* Upload Signed Copy Section */}
-      {indent.status === "DRAFT" && (
-        <div className="bg-amber-50 rounded-xl shadow-sm border border-amber-200 p-6 flex flex-col md:flex-row items-center justify-between gap-4 animate-fade-in">
+      {/* Final Submit Section for DRAFT indents */}
+      {canSubmit && (
+        <div className="bg-emerald-50 rounded-xl shadow-sm border border-emerald-200 p-6 flex flex-col md:flex-row items-center justify-between gap-4 animate-fade-in">
           <div>
-            <h3 className="font-bold text-amber-800 flex items-center gap-2">
-              <FileText size={18} /> Action Required: Upload Signed Copy
+            <h3 className="font-bold text-emerald-800 flex items-center gap-2">
+              <Send size={18} /> Ready to Submit?
             </h3>
-            <p className="text-amber-700 text-sm mt-1">
-              Please print this indent, sign it, and upload the scanned PDF copy to finalize submission to CPO.
+            <p className="text-emerald-700 text-sm mt-1">
+              Review all details above. Once submitted, this indent will be sent to CPO for processing.
             </p>
           </div>
-          <div className="flex-shrink-0">
-            <input
-              type="file"
-              id="upload-signed-pdf"
-              className="hidden"
-              accept=".pdf,image/png,image/jpeg"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                setUploading(true);
-                const formData = new FormData();
-                formData.append("file", file);
-                try {
-                  const res = await fetch(`/api/indents/${indent.id}/upload`, {
-                    method: "POST",
-                    body: formData,
-                  });
-                  if (res.ok) {
-                    window.location.reload();
-                  } else {
-                    alert("Upload failed. Try again.");
-                  }
-                } catch {
-                  alert("Upload failed. Try again.");
-                } finally {
-                  setUploading(false);
-                }
-              }}
-            />
-            <label
-              htmlFor="upload-signed-pdf"
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all shadow-md cursor-pointer ${
-                uploading
-                  ? "bg-gray-400 text-white cursor-not-allowed opacity-70"
-                  : "bg-amu-gold text-amu-green hover:bg-amu-gold-light"
-              }`}
-            >
-              {uploading ? (
-                <><Loader2 size={16} className="animate-spin" /> Uploading...</>
-              ) : (
-                <><Upload size={16} /> Upload Signed Indent</>
-              )}
-            </label>
-          </div>
+          <button
+            onClick={handleFinalSubmit}
+            disabled={submitting}
+            className={`flex items-center gap-2 px-8 py-3 rounded-lg font-bold transition-all shadow-md ${
+              submitting
+                ? "bg-gray-400 text-white cursor-not-allowed opacity-70"
+                : "bg-amu-green text-white hover:bg-amu-green-mid hover:shadow-lg transform hover:-translate-y-0.5"
+            }`}
+          >
+            {submitting ? (
+              <><Loader2 size={16} className="animate-spin" /> Submitting...</>
+            ) : (
+              <><Send size={16} /> Submit Indent</>
+            )}
+          </button>
         </div>
       )}
 
@@ -258,6 +289,7 @@ export default function IndentDetailPage() {
                   {indent.items[0]?.year3Label || "Year 3"}
                 </th>
                 <th className="text-left p-3 text-gray-500 font-medium">Remarks</th>
+                <th className="text-left p-3 text-gray-500 font-medium">Used By</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -291,6 +323,9 @@ export default function IndentDetailPage() {
                     </td>
                     <td className="p-3 text-gray-500 text-xs">
                       {indentItem.remarks || "—"}
+                    </td>
+                    <td className="p-3 text-gray-500 text-xs">
+                      {indentItem.usedByName || "—"}
                     </td>
                   </tr>
                 );

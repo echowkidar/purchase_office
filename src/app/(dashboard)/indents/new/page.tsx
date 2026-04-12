@@ -50,6 +50,11 @@ function NewIndentContent() {
   // Step 1 data — restored from localStorage if user returns from catalogue
   const [purpose, setPurpose] = useState("");
   const [urgency, setUrgency] = useState<"NORMAL" | "URGENT">("NORMAL");
+  const [selectedDeptId, setSelectedDeptId] = useState("");
+  const [departments, setDepartments] = useState<{id: string; name: string; code: string}[]>([]);
+
+  const role = session?.user?.role;
+  const isCPO = role === "AFO_STAFF" || role === "SUPER_ADMIN";
 
   // Restore saved basic info and auto-skip to items step if coming back from cart
   useEffect(() => {
@@ -79,6 +84,16 @@ function NewIndentContent() {
     setInitialized(true);
   }, []);
 
+  // Fetch departments for CPO/Admin users
+  useEffect(() => {
+    if (isCPO) {
+      fetch("/api/departments")
+        .then((r) => r.json())
+        .then((data) => setDepartments(Array.isArray(data) ? data : []))
+        .catch(() => {});
+    }
+  }, [isCPO]);
+
   // Save basic info whenever it changes so it survives catalogue navigation
   useEffect(() => {
     if (!initialized) return;
@@ -93,7 +108,11 @@ function NewIndentContent() {
   }, [step, cart.items.length]);
 
   const canProceed = () => {
-    if (step === 0) return purpose.length >= 10;
+    if (step === 0) {
+      if (purpose.length < 10) return false;
+      if (isCPO && !selectedDeptId) return false;
+      return true;
+    }
     if (step === 1) return cart.items.length > 0;
     return true;
   };
@@ -109,6 +128,7 @@ function NewIndentContent() {
         body: JSON.stringify({
           purpose,
           urgency,
+          ...(isCPO && selectedDeptId ? { departmentId: selectedDeptId } : {}),
           items: cart.items.map((item) => ({
             itemId: item.itemId,
             variantId: item.variantId,
@@ -197,17 +217,37 @@ function NewIndentContent() {
             <p className="text-sm text-gray-500 mb-2">First, provide the purpose and urgency for this indent before reviewing items.</p>
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Department
-                </label>
-                <input
-                  type="text"
-                  value={session?.user?.departmentName || ""}
-                  readOnly
-                  className="w-full px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-600"
-                />
-              </div>
+              {isCPO ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Department (on behalf of) *
+                  </label>
+                  <select
+                    value={selectedDeptId}
+                    onChange={(e) => setSelectedDeptId(e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amu-green/20 focus:border-amu-green text-sm"
+                  >
+                    <option value="">Select Department...</option>
+                    {departments.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name} ({d.code})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Department
+                  </label>
+                  <input
+                    type="text"
+                    value={session?.user?.departmentName || ""}
+                    readOnly
+                    className="w-full px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-600"
+                  />
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Date

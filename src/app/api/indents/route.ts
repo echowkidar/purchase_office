@@ -101,28 +101,48 @@ export async function POST(request: Request) {
       );
     }
 
-    // Get user's department
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: { department: true },
-    });
+    // Determine department: CPO/Admin can specify departmentId, otherwise use user's own department
+    let departmentId: string;
+    let departmentCode: string;
 
-    if (!user?.department) {
-      return NextResponse.json(
-        { error: "User does not belong to any department" },
-        { status: 400 }
-      );
+    if (
+      parsed.data.departmentId &&
+      (session.user.role === "AFO_STAFF" || session.user.role === "SUPER_ADMIN")
+    ) {
+      // CPO creating on behalf of a department
+      const dept = await prisma.department.findUnique({
+        where: { id: parsed.data.departmentId },
+      });
+      if (!dept) {
+        return NextResponse.json({ error: "Department not found" }, { status: 400 });
+      }
+      departmentId = dept.id;
+      departmentCode = dept.code;
+    } else {
+      // Regular user — use their own department
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        include: { department: true },
+      });
+      if (!user?.department) {
+        return NextResponse.json(
+          { error: "User does not belong to any department" },
+          { status: 400 }
+        );
+      }
+      departmentId = user.department.id;
+      departmentCode = user.department.code;
     }
 
     // Generate requisition number
-    const requisitionNo = await generateReqNo(user.department.code);
+    const requisitionNo = await generateReqNo(departmentCode);
 
     // Create indent with items
     const indent = await prisma.indent.create({
       data: {
         requisitionNo,
-        departmentId: user.department.id,
-        requestedById: user.id,
+        departmentId,
+        requestedById: session.user.id,
         purpose: parsed.data.purpose,
         urgency: parsed.data.urgency,
         status: "DRAFT",
@@ -168,16 +188,19 @@ export async function POST(request: Request) {
       data: {
         userId: session.user.id,
         type: "INDENT_DRAFTED",
-        message: `Your indent ${requisitionNo} has been generated. Please print, sign, and upload it to finalize submission.`,
+        message: `Your indent ${requisitionNo} has been created. Please review and submit it.`,
         sentVia: "dashboard",
       },
     });
 
-    // Send email to user
+    // Send email to creator
     try {
-      // Re-using the submitted email template for now, but in reality it's just a "Generated" email.
-      const emailData = emailIndentSubmitted(requisitionNo, user.department.name);
-      await sendEmail({ to: user.email, ...emailData });
+      const creator = await prisma.user.findUnique({ where: { id: session.user.id } });
+      if (creator?.email) {
+        const deptName = indent.department.name;
+        const emailData = emailIndentSubmitted(requisitionNo, deptName);
+        await sendEmail({ to: creator.email, ...emailData });
+      }
     } catch (e) {
       console.error("Failed to send email:", e);
     }

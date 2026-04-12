@@ -69,6 +69,7 @@ export const createIndentSchema = z.object({
   purpose: z.string().min(10, "Purpose must be at least 10 characters"),
   urgency: z.enum(["NORMAL", "URGENT"]),
   items: z.array(indentItemSchema).min(1, "At least one item is required"),
+  departmentId: z.string().optional(), // CPO staff creating on behalf of a department
 });
 
 export const receiveIndentSchema = z.object({
