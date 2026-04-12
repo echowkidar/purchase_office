@@ -42,6 +42,9 @@ export default function AFOReportsPage() {
   // Filters & Sorting
   const [search, setSearch] = useState("");
   const [deptFilter, setDeptFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState("");
+  const [yearFilter, setYearFilter] = useState("");
+  const [remarkStatusFilter, setRemarkStatusFilter] = useState("");
   const [sortField, setSortField] = useState<"date" | "department" | "requisition">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
@@ -139,6 +142,22 @@ export default function AFOReportsPage() {
   const filteredAndSortedItems = items
     .filter(item => {
       if (deptFilter && item.indent.department.name !== deptFilter) return false;
+      
+      if (monthFilter) {
+        const itemMonth = new Date(item.indent.createdAt).getMonth() + 1;
+        if (itemMonth.toString() !== monthFilter) return false;
+      }
+      
+      if (yearFilter) {
+        const itemYear = new Date(item.indent.createdAt).getFullYear();
+        if (itemYear.toString() !== yearFilter) return false;
+      }
+      
+      if (remarkStatusFilter) {
+        const val = item.cpoRemarks || "";
+        if (!val.toLowerCase().includes(remarkStatusFilter.toLowerCase())) return false;
+      }
+
       const searchTerms = search.toLowerCase();
       if (
         search && 
@@ -275,16 +294,59 @@ export default function AFOReportsPage() {
               className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-amu-green/30"
             />
           </div>
-          <select
-            value={deptFilter}
-            onChange={(e) => setDeptFilter(e.target.value)}
-            className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-amu-green/30"
-          >
-            <option value="">All Departments</option>
-            {departmentsList.map((d) => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
+          
+          <div className="flex flex-wrap gap-3 w-full lg:w-auto">
+            <select
+              value={deptFilter}
+              onChange={(e) => setDeptFilter(e.target.value)}
+              className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-amu-green/30 min-w-[150px]"
+            >
+              <option value="">All Departments</option>
+              {departmentsList.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+
+            <select
+              value={monthFilter}
+              onChange={(e) => setMonthFilter(e.target.value)}
+              className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-amu-green/30 min-w-[120px]"
+            >
+              <option value="">All Months</option>
+              <option value="1">Jan</option>
+              <option value="2">Feb</option>
+              <option value="3">Mar</option>
+              <option value="4">Apr</option>
+              <option value="5">May</option>
+              <option value="6">Jun</option>
+              <option value="7">Jul</option>
+              <option value="8">Aug</option>
+              <option value="9">Sep</option>
+              <option value="10">Oct</option>
+              <option value="11">Nov</option>
+              <option value="12">Dec</option>
+            </select>
+
+            <select
+              value={yearFilter}
+              onChange={(e) => setYearFilter(e.target.value)}
+              className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-amu-green/30 min-w-[100px]"
+            >
+              <option value="">All Years</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+            </select>
+
+            <input
+              type="text"
+              value={remarkStatusFilter}
+              onChange={(e) => setRemarkStatusFilter(e.target.value)}
+              placeholder="Filter by Remark/Status..."
+              className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-amu-green/30 min-w-[180px]"
+            />
+          </div>
         </div>
 
         {itemsLoading ? (
