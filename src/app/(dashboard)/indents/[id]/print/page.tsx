@@ -261,8 +261,6 @@ export default function PrintLetterPage() {
 
             {/* Signature */}
             <div className="text-sm mt-12">
-              <p>Thanking you,</p>
-              <p className="mt-1">Yours faithfully,</p>
               <div className="mt-12">
                 <p className="font-bold">({indent.requestedBy?.name})</p>
                 <p>{indent.requestedBy?.designation}</p>
