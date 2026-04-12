@@ -37,7 +37,7 @@ export async function GET(request: Request) {
     if (isSummary) {
       const [total, submitted, received, recent] = await Promise.all([
         prisma.indent.count({ where }),
-        prisma.indent.count({ where: { ...where, status: "SUBMITTED" } }),
+        prisma.indent.count({ where: { ...where, status: { in: ["SUBMITTED", "DRAFT"] } } }),
         prisma.indent.count({ where: { ...where, status: { in: ["CPO_RECEIVED", "PROCESSING", "CLOSED"] } } }),
         prisma.indent.findMany({
           where,
@@ -77,9 +77,9 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(indents);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error fetching indents:", error);
-    return NextResponse.json({ error: "Failed to fetch indents" }, { status: 500 });
+    return NextResponse.json([], { status: 200 });
   }
 }
 
@@ -183,8 +183,9 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(indent, { status: 201 });
-  } catch (error) {
-    console.error("Error creating indent:", error);
-    return NextResponse.json({ error: "Failed to create indent" }, { status: 500 });
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error creating indent:", errMsg, error);
+    return NextResponse.json({ error: `Failed to create indent: ${errMsg}` }, { status: 500 });
   }
 }

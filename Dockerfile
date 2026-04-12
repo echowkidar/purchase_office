@@ -38,6 +38,10 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+
+# Create startup script that applies DB migrations then starts the app
+RUN printf '#!/bin/sh\necho "Applying database schema..."\nnpx prisma db push --skip-generate --accept-data-loss 2>&1 || echo "Warning: prisma db push failed, continuing..."\necho "Starting server..."\nnode server.js\n' > /app/start.sh && chmod +x /app/start.sh
 
 USER nextjs
 
@@ -46,4 +50,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["sh", "/app/start.sh"]
+

@@ -53,18 +53,28 @@ function NewIndentContent() {
 
   // Restore saved basic info and auto-skip to items step if coming back from cart
   useEffect(() => {
+    let savedPurpose = "";
     try {
       const saved = localStorage.getItem("cpo-indent-basicinfo");
       if (saved) {
         const data = JSON.parse(saved);
-        if (data.purpose) setPurpose(data.purpose);
+        if (data.purpose) {
+          setPurpose(data.purpose);
+          savedPurpose = data.purpose;
+        }
         if (data.urgency) setUrgency(data.urgency);
       }
     } catch {}
-    // If coming from cart sidebar, jump directly to step 1 (items)
+    // If coming from cart sidebar, check if purpose was already filled
     const fromCart = searchParams.get("step");
     if (fromCart === "items" && cart.items.length > 0) {
-      setStep(1);
+      if (savedPurpose.length >= 10) {
+        // Purpose already filled — skip to items step
+        setStep(1);
+      } else {
+        // Purpose not filled — stay on basic info so user fills it first
+        setStep(0);
+      }
     }
     setInitialized(true);
   }, []);
