@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart3, Download, FileText, Building2, Search, ArrowUpDown, Save, Edit2 } from "lucide-react";
+import { BarChart3, Download, FileText, Search, ArrowUpDown, Save, Edit2 } from "lucide-react";
+import * as XLSX from 'xlsx';
 
 interface DeptStat {
   department: string;
@@ -75,41 +76,27 @@ export default function AFOReportsPage() {
       .catch(() => setItemsLoading(false));
   }, []);
 
-  const handleExportCSV = () => {
+  const handleExportExcel = () => {
     if (items.length === 0) return;
 
-    // Headers
-    const headers = [
-      "Date", "Requisition No.", "Department", "Requested By", "Item", "Category", "Quantity", "Dept Remarks", "CPO Supply Status / Remark", "Status"
-    ];
+    const data = filteredAndSortedItems.map(item => ({
+      "Date": new Date(item.indent.createdAt).toLocaleDateString("en-IN"),
+      "Requisition No.": item.indent.requisitionNo,
+      "Department": item.indent.department.name,
+      "Requested By": item.indent.requestedBy?.name || "",
+      "Item": item.item.name,
+      "Category": item.item.category.name,
+      "Quantity": item.quantity,
+      "Dept Remarks": item.remarks || "",
+      "CPO Supply Status / Remark": item.cpoRemarks || "",
+      "Status": item.indent.status
+    }));
 
-    const csvRows = [
-      headers.join(","),
-      ...filteredAndSortedItems.map(item => {
-        const row = [
-          new Date(item.indent.createdAt).toLocaleDateString("en-IN"),
-          item.indent.requisitionNo,
-          item.indent.department.name,
-          `"${item.indent.requestedBy?.name || ""}"`,
-          `"${item.item.name}"`,
-          `"${item.item.category.name}"`,
-          item.quantity,
-          `"${item.remarks || ""}"`,
-          `"${item.cpoRemarks || ""}"`,
-          item.indent.status
-        ];
-        return row.join(",");
-      })
-    ];
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Indent Items");
 
-    const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Indent_Items_Report_${new Date().toISOString().split("T")[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    XLSX.writeFile(workbook, `Indent_Items_Report_${new Date().toISOString().split("T")[0]}.xlsx`);
   };
 
   const handleSort = (field: "date" | "department" | "requisition") => {
@@ -202,7 +189,7 @@ export default function AFOReportsPage() {
           <p className="text-sm text-gray-400">Monthly summary and detailed item tracking</p>
         </div>
         <button
-          onClick={handleExportCSV}
+          onClick={handleExportExcel}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amu-gold text-amu-green font-semibold hover:bg-amu-gold-light transition-all shadow-sm"
         >
           <Download size={16} /> Export to Excel
@@ -247,32 +234,6 @@ export default function AFOReportsPage() {
         </div>
       </div>
 
-      {/* Analytics Graph */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-lg font-semibold text-amu-green mb-4 flex items-center gap-2">
-          <Building2 size={20} /> Department-wise Indents
-        </h2>
-        {deptStats.length === 0 ? (
-          <p className="text-gray-400 text-center py-4">No data available</p>
-        ) : (
-          <div className="space-y-3">
-            {deptStats.map((dept) => (
-              <div key={dept.code} className="flex items-center gap-4">
-                <div className="w-32 text-sm text-gray-600 truncate">{dept.department}</div>
-                <div className="flex-1 bg-gray-100 rounded-full h-6 relative overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-amu-green to-amu-green-light rounded-full transition-all duration-500"
-                    style={{ width: `${(dept.count / maxCount) * 100}%` }}
-                  />
-                </div>
-                <span className="w-8 text-right font-mono text-sm font-bold text-amu-green">
-                  {dept.count}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
       {/* All Items Report Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
