@@ -72,7 +72,7 @@ export default function IndentDetailPage() {
   // Check if current user can edit this indent
   const canEdit =
     indent &&
-    ((role === "DEPT_USER" && indent.status === "DRAFT" && indent.requestedById === userId) ||
+    ((role === "DEPT_USER" && indent.status === "DRAFT") ||
       ((role === "AFO_STAFF" || role === "SUPER_ADMIN") &&
         (indent.status === "CPO_RECEIVED" || indent.status === "DRAFT")));
 
@@ -80,7 +80,7 @@ export default function IndentDetailPage() {
   const canSubmit =
     indent &&
     indent.status === "DRAFT" &&
-    (indent.requestedById === userId || role === "AFO_STAFF" || role === "SUPER_ADMIN");
+    (role === "DEPT_USER" || role === "AFO_STAFF" || role === "SUPER_ADMIN");
 
   const handleFinalSubmit = async () => {
     if (

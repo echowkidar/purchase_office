@@ -27,9 +27,9 @@ export async function PATCH(
       return NextResponse.json({ error: "Indent not found" }, { status: 404 });
     }
 
-    // DEPT_USER can only submit their own DRAFT indent
+    // DEPT_USER can submit DRAFT indents for their department
     if (session.user.role === "DEPT_USER") {
-      if (body.status !== "SUBMITTED" || indent.status !== "DRAFT" || indent.requestedById !== session.user.id) {
+      if (body.status !== "SUBMITTED" || indent.status !== "DRAFT" || indent.departmentId !== session.user.departmentId) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
       }
     } else if (session.user.role !== "AFO_STAFF" && session.user.role !== "SUPER_ADMIN") {

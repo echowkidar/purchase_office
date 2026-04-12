@@ -80,7 +80,7 @@ export default function EditIndentPage() {
   // Permission check
   const canEdit =
     indent &&
-    ((role === "DEPT_USER" && indent.status === "DRAFT" && indent.requestedById === userId) ||
+    ((role === "DEPT_USER" && indent.status === "DRAFT") ||
       ((role === "AFO_STAFF" || role === "SUPER_ADMIN") &&
         (indent.status === "CPO_RECEIVED" || indent.status === "DRAFT")));
 

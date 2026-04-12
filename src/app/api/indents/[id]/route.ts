@@ -32,10 +32,10 @@ export async function GET(
       return NextResponse.json({ error: "Indent not found" }, { status: 404 });
     }
 
-    // Department users can only view their own indents
+    // Department users can view any indent belonging to their department
     if (
       session.user.role === "DEPT_USER" &&
-      indent.requestedById !== session.user.id
+      indent.departmentId !== session.user.departmentId
     ) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
@@ -66,7 +66,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Indent not found" }, { status: 404 });
     }
 
-    if (session.user.role === "DEPT_USER" && indent.requestedById !== session.user.id) {
+    // Department users can only delete their department's DRAFT indents
+    if (session.user.role === "DEPT_USER" && indent.departmentId !== session.user.departmentId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
@@ -106,7 +107,7 @@ export async function PUT(
     // Permission check
     const role = session.user.role;
     if (role === "DEPT_USER") {
-      if (indent.status !== "DRAFT" || indent.requestedById !== session.user.id) {
+      if (indent.status !== "DRAFT" || indent.departmentId !== session.user.departmentId) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
       }
     } else if (role === "AFO_STAFF" || role === "SUPER_ADMIN") {

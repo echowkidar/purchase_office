@@ -18,9 +18,9 @@ export async function GET(request: Request) {
 
     const where: Record<string, unknown> = {};
 
-    // Department users see only their own indents
-    if (session.user.role === "DEPT_USER") {
-      where.requestedById = session.user.id;
+    // Department users see all indents for their department
+    if (session.user.role === "DEPT_USER" && session.user.departmentId) {
+      where.departmentId = session.user.departmentId;
     }
 
     // Optional filters for AFO/Admin
