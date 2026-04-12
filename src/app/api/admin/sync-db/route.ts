@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
-import { exec } from "child_process";
-import util from "util";
-const execAsync = util.promisify(exec);
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const { stdout, stderr } = await execAsync("node node_modules/prisma/build/index.js db push --accept-data-loss");
-    return NextResponse.json({ success: true, stdout, stderr });
+    const result = await prisma.$executeRawUnsafe(`ALTER TABLE "IndentItem" ADD COLUMN IF NOT EXISTS "cpoRemarks" TEXT;`);
+    return NextResponse.json({ success: true, result, message: "Database schema synchronized successfully!" });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message, stdout: error.stdout, stderr: error.stderr }, { status: 500 });
+    return NextResponse.json({ success: false, error: error?.message || String(error) }, { status: 500 });
   }
 }
