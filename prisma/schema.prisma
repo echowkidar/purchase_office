@@ -154,6 +154,7 @@ model IndentItem {
 
   remarks String? // General remarks for this item
   usedByName String? // Name of the person who will use this item
+  cpoRemarks String? // Remark or Supply status filled by CPO
 
   @@index([indentId])
   @@index([itemId])
