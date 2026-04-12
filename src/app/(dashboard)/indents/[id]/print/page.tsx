@@ -127,13 +127,13 @@ export default function PrintLetterPage() {
             </div>
           </div>
 
-          {/* Letter Content */}
-          <div className="px-8 py-6 space-y-6 relative z-0">
-            {/* Mandatory Instruction */}
-            <div className="text-center font-bold text-base uppercase tracking-wide text-gray-800 border-b pb-4">
-              Sending a hard copy to the Central Purchase Office is mandatory
-            </div>
+          {/* Mandatory Instruction */}
+          <div className="text-center font-bold text-base uppercase tracking-wide text-gray-800 border-b py-2 px-8">
+            SENDING A HARD COPY TO THE CENTRAL PURCHASE OFFICE IS MANDATORY
+          </div>
 
+          {/* Letter Content */}
+          <div className="px-8 py-4 space-y-6 relative z-0">
             {/* Requisition Info */}
             <div className="flex justify-between text-sm">
               <div>
