@@ -82,3 +82,108 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to delete indent" }, { status: 500 });
   }
 }
+
+// PUT /api/indents/:id — Update indent (edit)
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+
+    const indent = await prisma.indent.findUnique({ where: { id } });
+
+    if (!indent) {
+      return NextResponse.json({ error: "Indent not found" }, { status: 404 });
+    }
+
+    // Permission check
+    const role = session.user.role;
+    if (role === "DEPT_USER") {
+      if (indent.status !== "DRAFT" || indent.requestedById !== session.user.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      }
+    } else if (role === "AFO_STAFF" || role === "SUPER_ADMIN") {
+      if (indent.status !== "DRAFT" && indent.status !== "CPO_RECEIVED") {
+        return NextResponse.json({ error: "Cannot edit indent in this status" }, { status: 400 });
+      }
+    } else {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    // Validate
+    if (!body.purpose || body.purpose.length < 10) {
+      return NextResponse.json({ error: "Purpose must be at least 10 characters" }, { status: 400 });
+    }
+    if (!body.items || body.items.length === 0) {
+      return NextResponse.json({ error: "At least one item is required" }, { status: 400 });
+    }
+
+    // Update indent and items in a transaction
+    const updated = await prisma.$transaction(async (tx) => {
+      // Update indent fields
+      const updatedIndent = await tx.indent.update({
+        where: { id },
+        data: {
+          purpose: body.purpose,
+          urgency: body.urgency || indent.urgency,
+        },
+      });
+
+      // Delete removed items
+      const keepIds = body.items.map((i: { id: string }) => i.id).filter(Boolean);
+      await tx.indentItem.deleteMany({
+        where: {
+          indentId: id,
+          id: { notIn: keepIds },
+        },
+      });
+
+      // Update existing items
+      for (const item of body.items) {
+        if (item.id) {
+          await tx.indentItem.update({
+            where: { id: item.id },
+            data: {
+              quantity: item.quantity,
+              year1Qty: item.year1Qty || 0,
+              year1Remarks: item.year1Remarks || "",
+              year2Qty: item.year2Qty || 0,
+              year2Remarks: item.year2Remarks || "",
+              year3Qty: item.year3Qty || 0,
+              year3Remarks: item.year3Remarks || "",
+              remarks: item.remarks || "",
+              usedByName: item.usedByName || "",
+            },
+          });
+        }
+      }
+
+      return updatedIndent;
+    });
+
+    // Audit log
+    await prisma.auditLog.create({
+      data: {
+        userId: session.user.id,
+        userName: session.user.name,
+        action: "INDENT_EDITED",
+        entity: "Indent",
+        entityId: id,
+        details: { requisitionNo: indent.requisitionNo },
+      },
+    });
+
+    return NextResponse.json(updated);
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error updating indent:", errMsg, error);
+    return NextResponse.json({ error: `Failed to update indent: ${errMsg}` }, { status: 500 });
+  }
+}

@@ -235,7 +235,20 @@ export default function AFODashboardPage() {
                         </Link>
                         {indent.status === "SUBMITTED" && (
                           <button
-                            onClick={() => setShowReceiveDialog(indent.id)}
+                            onClick={async () => {
+                              setShowReceiveDialog(indent.id);
+                              // Auto-fill today's date
+                              const today = new Date().toISOString().split("T")[0];
+                              setReceiptDate(today);
+                              // Fetch next receipt number
+                              try {
+                                const res = await fetch("/api/indents/next-receipt");
+                                const data = await res.json();
+                                if (data.receiptNo) {
+                                  setReceiptNo(data.receiptNo);
+                                }
+                              } catch {}
+                            }}
                             className="px-3 py-1 rounded-lg bg-status-received text-white text-xs font-medium hover:bg-green-600 transition-all"
                           >
                             Mark Received
@@ -261,15 +274,15 @@ export default function AFODashboardPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Receipt Number *
+                  R.No. (Auto-generated)
                 </label>
                 <input
                   type="text"
                   value={receiptNo}
-                  onChange={(e) => setReceiptNo(e.target.value)}
-                  placeholder="e.g. R-2025/0042"
-                  className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amu-green/20"
+                  readOnly
+                  className="w-full px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 font-mono cursor-not-allowed"
                 />
+                <p className="text-xs text-gray-400 mt-1">Auto-generated. Cannot be edited.</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

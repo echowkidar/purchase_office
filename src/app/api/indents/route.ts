@@ -105,10 +105,9 @@ export async function POST(request: Request) {
     let departmentId: string;
     let departmentCode: string;
 
-    if (
-      parsed.data.departmentId &&
-      (session.user.role === "AFO_STAFF" || session.user.role === "SUPER_ADMIN")
-    ) {
+    const isCPORole = session.user.role === "AFO_STAFF" || session.user.role === "SUPER_ADMIN";
+
+    if (isCPORole && parsed.data.departmentId) {
       // CPO creating on behalf of a department
       const dept = await prisma.department.findUnique({
         where: { id: parsed.data.departmentId },
@@ -118,6 +117,12 @@ export async function POST(request: Request) {
       }
       departmentId = dept.id;
       departmentCode = dept.code;
+    } else if (isCPORole && !parsed.data.departmentId) {
+      // CPO must select a department
+      return NextResponse.json(
+        { error: "Please select a department to create indent on their behalf" },
+        { status: 400 }
+      );
     } else {
       // Regular user — use their own department
       const user = await prisma.user.findUnique({
