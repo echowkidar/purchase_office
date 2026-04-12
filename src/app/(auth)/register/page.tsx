@@ -118,7 +118,7 @@ export default function RegisterPage() {
               Create Account
             </h1>
             <p className="text-amu-gold-light/70 text-sm">
-              CPO Procurement Portal — AMU
+              CPO Requirement Raise Form — AMU
             </p>
           </div>
 
@@ -146,7 +146,7 @@ export default function RegisterPage() {
                 type="text"
                 value={form.name}
                 onChange={handleChange}
-                placeholder="Dr. John Doe"
+                placeholder="XYZ"
                 required
                 className="w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amu-gold/50 transition-all"
               />

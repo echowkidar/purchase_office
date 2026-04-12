@@ -79,7 +79,7 @@ export default function Header({
               ? "Admin Panel"
               : session?.user?.role === "AFO_STAFF"
               ? "AFO Dashboard"
-              : "CPO Procurement Portal"}
+              : "CPO Requirement Raise Form"}
           </h1>
         </div>
       </div>

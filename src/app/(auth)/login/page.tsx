@@ -78,7 +78,7 @@ export default function LoginPage() {
               </div>
             </div>
             <h1 className="text-2xl font-bold text-white mb-1">
-              CPO Procurement Portal
+              CPO Requirement Raise Form
             </h1>
             <p className="text-amu-gold-light text-sm">
               Aligarh Muslim University, Aligarh

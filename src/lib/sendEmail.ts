@@ -130,7 +130,7 @@ export function emailUserActivated(userName: string) {
         <div style="padding: 20px; background: #f9f9f9;">
           <h3>Account Activated</h3>
           <p>Dear ${userName},</p>
-          <p>Your account on the CPO Procurement Portal has been activated. You can now login and submit purchase indents.</p>
+          <p>Your account on the CPO Requirement Raise Form has been activated. You can now login and submit purchase indents.</p>
           <p style="margin-top: 20px;">
             <a href="${process.env.NEXTAUTH_URL}/login" style="background: #1B4332; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Login Now</a>
           </p>

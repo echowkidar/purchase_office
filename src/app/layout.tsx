@@ -21,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CPO Procurement Portal — AMU",
+  title: "CPO Requirement Raise Form — AMU",
   description:
     "Central Purchase Office Procurement Management System — Aligarh Muslim University. Submit and manage purchase indents online.",
   keywords: ["AMU", "CPO", "Procurement", "Purchase", "Indent", "Aligarh Muslim University"],
