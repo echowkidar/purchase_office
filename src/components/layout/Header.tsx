@@ -63,7 +63,7 @@ export default function Header({
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-200 px-6 py-3 flex items-center justify-between no-print">
       {/* Left */}
       <div className="flex items-center gap-4">
         <button
