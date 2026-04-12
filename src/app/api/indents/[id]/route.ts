@@ -19,7 +19,7 @@ export async function GET(
       where: { id },
       include: {
         department: true,
-        requestedBy: { select: { id: true, name: true, designation: true, email: true, phone: true } },
+        requestedBy: { select: { id: true, name: true, designation: true, email: true, phone: true, role: true } },
         items: {
           include: {
             item: { include: { category: true, variants: true } },
@@ -32,6 +32,22 @@ export async function GET(
       return NextResponse.json({ error: "Indent not found" }, { status: 404 });
     }
 
+    // If CPO created this on behalf of a department, fetch a department user for display purposes
+    let displayUser = indent.requestedBy;
+    if (displayUser.role === "AFO_STAFF" || displayUser.role === "SUPER_ADMIN") {
+      const deptUser = await prisma.user.findFirst({
+        where: { departmentId: indent.departmentId, role: "DEPT_USER" },
+        select: { id: true, name: true, designation: true, email: true, phone: true, role: true },
+        orderBy: { createdAt: "asc" }
+      });
+      
+      if (deptUser) {
+        displayUser = deptUser as any;
+      } else {
+        displayUser = { ...displayUser, name: "Representative", designation: indent.department.name };
+      }
+    }
+
     // Department users can view any indent belonging to their department
     if (
       session.user.role === "DEPT_USER" &&
@@ -40,7 +56,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    return NextResponse.json(indent);
+    return NextResponse.json({ ...indent, requestedBy: displayUser });
   } catch (error) {
     console.error("Error fetching indent:", error);
     return NextResponse.json({ error: "Failed to fetch indent" }, { status: 500 });

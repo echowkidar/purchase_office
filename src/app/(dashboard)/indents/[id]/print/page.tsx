@@ -118,7 +118,7 @@ export default function PrintLetterPage() {
               />
               <div className="text-center">
                 <h1 className="text-3xl font-bold text-amu-green uppercase tracking-wide" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
-                  CENTRAL PURCHASE OFFICE
+                  {indent.department.name.toUpperCase()}
                 </h1>
                 <p className="text-lg font-medium text-gray-700 mt-2" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
                   Aligarh Muslim University, Aligarh
@@ -174,7 +174,7 @@ export default function PrintLetterPage() {
             <div className="text-sm">
               <p>
                 <span className="font-bold">Subject: </span>
-                Requisition for Purchase of Items for the Department of{" "}
+                Requisition for Purchase of Items for{" "}
                 {indent.department.name}
               </p>
             </div>
@@ -182,8 +182,8 @@ export default function PrintLetterPage() {
             {/* Body */}
             <div className="text-sm leading-relaxed">
               <p className="mt-2">
-                Kindly arrange to provide the following items for the Department
-                of {indent.department.name} as per the details given below:
+                Kindly arrange to provide the following items for{" "}
+                {indent.department.name} as per the details given below:
               </p>
             </div>
 
@@ -261,7 +261,7 @@ export default function PrintLetterPage() {
               <div className="mt-12">
                 <p className="font-bold">({indent.requestedBy?.name})</p>
                 <p>{indent.requestedBy?.designation}</p>
-                <p>Department of {indent.department.name}</p>
+                <p>{indent.department.name}</p>
                 <p>Aligarh Muslim University, Aligarh</p>
               </div>
             </div>
