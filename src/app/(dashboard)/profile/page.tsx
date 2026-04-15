@@ -20,7 +20,7 @@ export default function ProfilePage() {
     // or we might need to fetch the full user profile if not there.
     // For now we try to populate if it exists in session, or empty otherwise.
     if ((session?.user as any)?.phone) {
-      setPhone((session.user as any).phone);
+      setPhone((session?.user as any).phone);
     }
   }, [session]);
 
