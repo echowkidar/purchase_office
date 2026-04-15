@@ -27,6 +27,7 @@ export async function GET(request: Request) {
         indent: {
           select: {
             purpose: true,
+            urgency: true,
             requisitionNo: true,
             receiptNo: true,
             receiptDate: true,

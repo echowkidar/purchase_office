@@ -25,6 +25,7 @@ interface ReportItem {
   };
   indent: {
     purpose: string;
+    urgency: string;
     requisitionNo: string;
     receiptNo: string | null;
     receiptDate: Date | null;
@@ -98,9 +99,9 @@ export default function AFOReportsPage() {
       "Purpose / Justification": item.indent.purpose,
       "Used By": item.usedByName || "—",
       "Quantity": item.quantity,
+      "Urgency": item.indent.urgency,
       "Dept Remarks": item.remarks || "",
-      "CPO Supply Status / Remark": item.cpoRemarks || "",
-      "Status": item.indent.status
+      "CPO Supply Status / Remark": item.cpoRemarks || ""
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(data);
