@@ -67,10 +67,9 @@ export default function CataloguePage() {
     variant: ItemVariant | null,
     qty: number
   ) => {
-    // Check if already in cart
     const existing = cart.items.find((i) => i.itemId === item.id && i.variantId === variant?.id);
     if (existing) {
-      alert("Ye item already cart me apne add kar rakha hai, aur agar apko is item ki quantity me koi changes karne hain to app cart me quantity increase ya descrease kar sakte hain.");
+      alert("This item is already in your cart. If you want to change its quantity, you can increase or decrease it from the cart.");
       setShowCart(true); // Open cart automatically
       return;
     }
