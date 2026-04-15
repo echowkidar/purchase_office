@@ -215,7 +215,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-white/80 mb-1">
-                Phone Number
+                Phone Number *
               </label>
               <input
                 id="phone"
@@ -224,6 +224,7 @@ export default function RegisterPage() {
                 value={form.phone}
                 onChange={handleChange}
                 placeholder="9876543210"
+                required
                 className="w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amu-gold/50 transition-all"
               />
             </div>

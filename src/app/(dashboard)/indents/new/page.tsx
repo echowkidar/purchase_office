@@ -113,7 +113,11 @@ function NewIndentContent() {
       if (isCPO && !selectedDeptId) return false;
       return true;
     }
-    if (step === 1) return cart.items.length > 0;
+    if (step === 1) {
+      if (cart.items.length === 0) return false;
+      // All items must have a usedByName filled
+      return cart.items.every(item => item.usedByName && item.usedByName.trim().length > 0);
+    }
     return true;
   };
 
@@ -360,8 +364,9 @@ function NewIndentContent() {
                     <div className="mt-2">
                       <input
                         type="text"
-                        placeholder="Name of person who will use this item (optional)"
+                        placeholder="Name of person who will use this item *"
                         value={item.usedByName || ""}
+                        required
                         onChange={(e) =>
                           cart.updateHistory(item.id, { usedByName: e.target.value })
                         }

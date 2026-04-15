@@ -7,6 +7,7 @@ import { User, Loader2, CheckCircle } from "lucide-react";
 export default function ProfilePage() {
   const { data: session, update } = useSession();
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -14,6 +15,12 @@ export default function ProfilePage() {
   useEffect(() => {
     if (session?.user?.name) {
       setName(session.user.name);
+    }
+    // we assume phone is available on the user session if added in auth configuration
+    // or we might need to fetch the full user profile if not there.
+    // For now we try to populate if it exists in session, or empty otherwise.
+    if ((session?.user as any)?.phone) {
+      setPhone((session.user as any).phone);
     }
   }, [session]);
 
@@ -27,12 +34,12 @@ export default function ProfilePage() {
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, phone }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       
-      await update({ name }); // update next-auth session
+      await update({ name, phone }); // update next-auth session
       setSuccess(true);
     } catch (err: any) {
       setError(err.message || "Failed to update profile");
@@ -76,6 +83,20 @@ export default function ProfilePage() {
               readOnly
               disabled
               className="w-full px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Enter phone number"
+              required
+              className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amu-green/20"
             />
           </div>
 

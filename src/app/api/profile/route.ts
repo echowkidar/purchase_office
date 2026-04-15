@@ -9,7 +9,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { name } = await request.json();
+    const { name, phone } = await request.json();
 
     if (!name || name.length < 3) {
       return NextResponse.json({ error: "Name is too short." }, { status: 400 });
@@ -17,7 +17,7 @@ export async function PUT(request: Request) {
 
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { name },
+      data: { name, phone },
     });
 
     return NextResponse.json({ success: true });

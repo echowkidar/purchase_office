@@ -26,17 +26,18 @@ export async function GET(request: Request) {
       include: {
         indent: {
           select: {
+            purpose: true,
             requisitionNo: true,
             receiptNo: true,
             receiptDate: true,
             status: true,
             createdAt: true,
             department: { select: { name: true, code: true } },
-            requestedBy: { select: { name: true } }
+            requestedBy: { select: { name: true, phone: true } }
           }
         },
         item: {
-          select: { name: true, category: { select: { name: true } }, variants: true }
+          select: { name: true, description: true, specifications: true, category: { select: { name: true } }, variants: true }
         }
       },
       orderBy: { indent: { createdAt: 'desc' } }

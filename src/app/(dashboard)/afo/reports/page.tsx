@@ -15,19 +15,23 @@ interface ReportItem {
   quantity: number;
   cpoRemarks: string | null;
   remarks: string | null;
+  usedByName: string | null;
   item: {
     name: string;
+    description: string | null;
+    specifications: string | null;
     category: { name: string };
     variants: { id: string; label: string }[];
   };
   indent: {
+    purpose: string;
     requisitionNo: string;
     receiptNo: string | null;
     receiptDate: Date | null;
     createdAt: string;
     status: string;
     department: { name: string; code: string };
-    requestedBy: { name: string };
+    requestedBy: { name: string; phone?: string | null };
   };
 }
 
@@ -48,7 +52,9 @@ export default function AFOReportsPage() {
   const [monthFilter, setMonthFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
   const [remarkStatusFilter, setRemarkStatusFilter] = useState("");
-  const [sortField, setSortField] = useState<"date" | "department" | "requisition">("date");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [itemFilter, setItemFilter] = useState("");
+  const [sortField, setSortField] = useState<"receiptNo" | "department">("receiptNo");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   // Inline edit state
@@ -84,12 +90,13 @@ export default function AFOReportsPage() {
     const data = filteredAndSortedItems.map(item => ({
       "Receipt No.": item.indent.receiptNo || "—",
       "Receipt Date": item.indent.receiptDate ? new Date(item.indent.receiptDate).toLocaleDateString("en-IN") : "—",
-      "Indent Date": new Date(item.indent.createdAt).toLocaleDateString("en-IN"),
-      "Requisition No.": item.indent.requisitionNo,
       "Department": item.indent.department.name,
-      "Requested By": item.indent.requestedBy?.name || "",
-      "Item": item.item.name,
+      "Phone Number": item.indent.requestedBy?.phone || "—",
       "Category": item.item.category.name,
+      "Items": item.item.name,
+      "Description / Specifications": [item.item.description, item.item.specifications].filter(Boolean).join(" | ") || "—",
+      "Purpose / Justification": item.indent.purpose,
+      "Used By": item.usedByName || "—",
       "Quantity": item.quantity,
       "Dept Remarks": item.remarks || "",
       "CPO Supply Status / Remark": item.cpoRemarks || "",
@@ -103,7 +110,7 @@ export default function AFOReportsPage() {
     XLSX.writeFile(workbook, `Indent_Items_Report_${new Date().toISOString().split("T")[0]}.xlsx`);
   };
 
-  const handleSort = (field: "date" | "department" | "requisition") => {
+  const handleSort = (field: "receiptNo" | "department") => {
     if (sortField === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
@@ -129,10 +136,14 @@ export default function AFOReportsPage() {
   };
 
   const departmentsList = [...new Set(items.map(i => i.indent.department.name))].sort();
+  const categoriesList = [...new Set(items.map(i => i.item.category.name))].sort();
+  const itemsList = [...new Set(items.map(i => i.item.name))].sort();
 
   const filteredAndSortedItems = items
     .filter(item => {
       if (deptFilter && item.indent.department.name !== deptFilter) return false;
+      if (categoryFilter && item.item.category.name !== categoryFilter) return false;
+      if (itemFilter && item.item.name !== itemFilter) return false;
       
       if (monthFilter) {
         const itemMonth = new Date(item.indent.createdAt).getMonth() + 1;
@@ -154,6 +165,7 @@ export default function AFOReportsPage() {
         search && 
         !(
           item.item.name.toLowerCase().includes(searchTerms) ||
+          (item.indent.receiptNo && item.indent.receiptNo.toLowerCase().includes(searchTerms)) ||
           item.indent.requisitionNo.toLowerCase().includes(searchTerms)
         )
       ) return false;
@@ -163,15 +175,12 @@ export default function AFOReportsPage() {
       let valA = "";
       let valB = "";
       
-      if (sortField === "date") {
-        valA = a.indent.createdAt;
-        valB = b.indent.createdAt;
+      if (sortField === "receiptNo") {
+        valA = a.indent.receiptNo || "zzz";
+        valB = b.indent.receiptNo || "zzz";
       } else if (sortField === "department") {
         valA = a.indent.department.name;
         valB = b.indent.department.name;
-      } else if (sortField === "requisition") {
-        valA = a.indent.requisitionNo;
-        valB = b.indent.requisitionNo;
       }
 
       if (valA < valB) return sortOrder === "asc" ? -1 : 1;
@@ -255,12 +264,33 @@ export default function AFOReportsPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search Items or Req. No..."
+              placeholder="Search Items or Receipt No..."
               className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-amu-green/30"
             />
           </div>
           
           <div className="flex flex-wrap gap-3 w-full lg:w-auto">
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-amu-green/30 min-w-[150px]"
+            >
+              <option value="">All Categories</option>
+              {categoriesList.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            
+            <select
+              value={itemFilter}
+              onChange={(e) => setItemFilter(e.target.value)}
+              className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-amu-green/30 min-w-[150px]"
+            >
+              <option value="">All Items</option>
+              {itemsList.map((i) => (
+                <option key={i} value={i}>{i}</option>
+              ))}
+            </select>
             <select
               value={deptFilter}
               onChange={(e) => setDeptFilter(e.target.value)}
@@ -321,27 +351,25 @@ export default function AFOReportsPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-y border-gray-100">
                 <tr>
-                  <th className="text-left p-3 text-gray-500 font-medium">Receipt No.</th>
+                  <th 
+                    className="text-left p-3 text-gray-500 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleSort("receiptNo")}
+                  >
+                    <div className="flex items-center gap-1">Receipt No. <ArrowUpDown size={14}/></div>
+                  </th>
                   <th className="text-left p-3 text-gray-500 font-medium">Receipt Date</th>
-                  <th 
-                    className="text-left p-3 text-gray-500 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleSort("date")}
-                  >
-                    <div className="flex items-center gap-1">Indent Date <ArrowUpDown size={14}/></div>
-                  </th>
-                  <th 
-                    className="text-left p-3 text-gray-500 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleSort("requisition")}
-                  >
-                    <div className="flex items-center gap-1">Req. No. <ArrowUpDown size={14}/></div>
-                  </th>
                   <th 
                     className="text-left p-3 text-gray-500 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
                     onClick={() => handleSort("department")}
                   >
                     <div className="flex items-center gap-1">Department <ArrowUpDown size={14}/></div>
                   </th>
-                  <th className="text-left p-3 text-gray-500 font-medium">Item Details</th>
+                  <th className="text-left p-3 text-gray-500 font-medium">Phone Number</th>
+                  <th className="text-left p-3 text-gray-500 font-medium">Category</th>
+                  <th className="text-left p-3 text-gray-500 font-medium">Items</th>
+                  <th className="text-left p-3 text-gray-500 font-medium">Description / Specifications</th>
+                  <th className="text-left p-3 text-gray-500 font-medium">Purpose / Justification</th>
+                  <th className="text-left p-3 text-gray-500 font-medium">Used By</th>
                   <th className="text-center p-3 text-gray-500 font-medium">Qty</th>
                   <th className="text-left p-3 text-gray-500 font-medium">Remark / Supply Status</th>
                 </tr>
@@ -360,19 +388,21 @@ export default function AFOReportsPage() {
                       <td className="p-3 text-gray-500 text-xs">
                         {item.indent.receiptDate ? new Date(item.indent.receiptDate).toLocaleDateString("en-IN") : "—"}
                       </td>
-                      <td className="p-3 text-gray-500 text-xs">
-                        {new Date(item.indent.createdAt).toLocaleDateString("en-IN", {
-                          day: "numeric", month: "short", year: "numeric"
-                        })}
-                      </td>
-                      <td className="p-3 font-mono text-amu-green font-medium">
-                        {item.indent.requisitionNo}
-                      </td>
-                      <td className="p-3">{item.indent.department.name}</td>
+                      <td className="p-3 font-medium text-gray-700">{item.indent.department.name}</td>
+                      <td className="p-3 text-gray-500">{item.indent.requestedBy?.phone || "—"}</td>
+                      <td className="p-3 text-xs text-gray-400">{item.item.category.name}</td>
                       <td className="p-3">
                         <div className="font-medium text-gray-700">{item.item.name}</div>
-                        <div className="text-xs text-gray-400">{item.item.category.name}</div>
                         {item.remarks && <div className="text-xs text-gray-500 mt-1 italic">"{item.remarks}"</div>}
+                      </td>
+                      <td className="p-3 text-gray-500 text-xs">
+                        {[item.item.description, item.item.specifications].filter(Boolean).join(" | ") || "—"}
+                      </td>
+                      <td className="p-3 text-gray-500 text-xs max-w-xs truncate" title={item.indent.purpose}>
+                        {item.indent.purpose}
+                      </td>
+                      <td className="p-3 text-gray-500 text-xs">
+                        {item.usedByName || "—"}
                       </td>
                       <td className="p-3 text-center font-bold">{item.quantity}</td>
                       <td className="p-3">
