@@ -142,17 +142,15 @@ export default function Sidebar() {
               System Settings
             </p>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-white/80 font-medium">Dept. Indent Creation</span>
+              <span className="text-xs text-white/80 font-medium">Indent Creation Facility</span>
               <button
                 onClick={toggleIndentCreation}
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                  isIndentEnabled ? "bg-amu-gold" : "bg-white/20"
-                }`}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${isIndentEnabled ? "bg-amu-gold" : "bg-white/20"
+                  }`}
               >
                 <span
-                  className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                    isIndentEnabled ? "translate-x-5" : "translate-x-1"
-                  }`}
+                  className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${isIndentEnabled ? "translate-x-5" : "translate-x-1"
+                    }`}
                 />
               </button>
             </div>
@@ -174,8 +172,8 @@ export default function Sidebar() {
               {role === "SUPER_ADMIN"
                 ? "Super Admin"
                 : role === "AFO_STAFF"
-                ? "AFO Staff"
-                : session?.user?.departmentName || "Department User"}
+                  ? "AFO Staff"
+                  : session?.user?.departmentName || "Department User"}
             </p>
           </div>
         </div>
