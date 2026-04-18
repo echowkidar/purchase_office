@@ -33,10 +33,21 @@ export default function AFOItemsPage() {
   }, []);
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete "${name}"? This is a soft delete.`)) return;
+    if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
 
-    const res = await fetch(`/api/items/${id}`, { method: "DELETE" });
-    if (res.ok) fetchItems();
+    try {
+      const res = await fetch(`/api/items/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      
+      if (res.ok) {
+        alert(data.message);
+        fetchItems();
+      } else {
+        alert(data.error || "Failed to delete item");
+      }
+    } catch (error) {
+      alert("An error occurred while deleting the item.");
+    }
   };
 
   return (

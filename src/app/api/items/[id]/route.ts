@@ -101,7 +101,7 @@ export async function PUT(
   }
 }
 
-// DELETE /api/items/:id — Soft delete (AFO only)
+// DELETE /api/items/:id — Delete item (AFO only)
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -114,10 +114,55 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const item = await prisma.item.update({
-      where: { id },
-      data: { isActive: false },
+    // Check if the item is referenced in any IndentItem
+    const indentCount = await prisma.indentItem.count({
+      where: { itemId: id }
     });
+
+    if (indentCount > 0) {
+      // It's used in indents, we can only soft delete it
+      const item = await prisma.item.update({
+        where: { id },
+        data: { isActive: false },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          userId: session.user.id,
+          userName: session.user.name,
+          action: "ITEM_DEACTIVATED",
+          entity: "Item",
+          entityId: id,
+          details: { name: item.name },
+        },
+      });
+
+      return NextResponse.json({ message: "Item is used in indents and has been deactivated instead of deleted." });
+    }
+
+    // It's not used in indents, find item first to get image path, then hard delete it
+    const itemToDelete = await prisma.item.findUnique({
+      where: { id },
+    });
+
+    if (!itemToDelete) {
+      return NextResponse.json({ error: "Item not found" }, { status: 404 });
+    }
+
+    await prisma.item.delete({
+      where: { id },
+    });
+
+    // Delete image if exists
+    if (itemToDelete.mainImage && itemToDelete.mainImage.startsWith("/uploads/items/")) {
+      try {
+        const filename = path.basename(itemToDelete.mainImage);
+        const filepath = path.join(process.cwd(), "public", "uploads", "items", filename);
+        await fs.unlink(filepath);
+      } catch (e) {
+        console.error("Failed to delete item image:", e);
+      }
+    }
 
     await prisma.auditLog.create({
       data: {
@@ -126,11 +171,11 @@ export async function DELETE(
         action: "ITEM_DELETED",
         entity: "Item",
         entityId: id,
-        details: { name: item.name },
+        details: { name: itemToDelete.name },
       },
     });
 
-    return NextResponse.json({ message: "Item deleted" });
+    return NextResponse.json({ message: "Item permanently deleted." });
   } catch (error) {
     console.error("Error deleting item:", error);
     return NextResponse.json({ error: "Failed to delete item" }, { status: 500 });
