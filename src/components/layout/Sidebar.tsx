@@ -39,7 +39,7 @@ export default function Sidebar() {
     const newValue = !isIndentEnabled;
     setIsIndentEnabled(newValue);
     try {
-      await fetch("/api/settings", {
+      const res = await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -47,6 +47,9 @@ export default function Sidebar() {
           value: String(newValue),
         }),
       });
+      if (!res.ok) {
+        throw new Error("Failed to update settings");
+      }
     } catch (error) {
       console.error("Failed to update setting:", error);
       setIsIndentEnabled(!newValue); // revert
