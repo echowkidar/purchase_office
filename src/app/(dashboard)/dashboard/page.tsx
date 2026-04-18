@@ -28,8 +28,18 @@ interface DashboardStats {
 export default function DashboardPage() {
   const { data: session } = useSession();
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [isIndentEnabled, setIsIndentEnabled] = useState(true);
 
   useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ENABLE_INDENT_CREATION) {
+          setIsIndentEnabled(data.ENABLE_INDENT_CREATION === "true");
+        }
+      })
+      .catch((err) => console.error(err));
+
     fetch("/api/indents?summary=true")
       .then((res) => res.json())
       .then(setStats)
@@ -48,6 +58,8 @@ export default function DashboardPage() {
     }`;
   };
 
+  const role = session?.user?.role;
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Welcome */}
@@ -62,18 +74,20 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link
-          href="/indents/new"
-          className="group bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-amu-gold/50 hover:shadow-md transition-all flex items-center gap-4"
-        >
-          <div className="w-12 h-12 rounded-xl bg-amu-gold/10 flex items-center justify-center text-amu-gold group-hover:bg-amu-gold group-hover:text-white transition-all">
-            <PlusCircle size={24} />
-          </div>
-          <div>
-            <h3 className="font-semibold text-amu-green">New Indent</h3>
-            <p className="text-xs text-gray-400">Submit a purchase request</p>
-          </div>
-        </Link>
+        {(!isIndentEnabled && role === "DEPT_USER") ? null : (
+          <Link
+            href="/indents/new"
+            className="group bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-amu-gold/50 hover:shadow-md transition-all flex items-center gap-4"
+          >
+            <div className="w-12 h-12 rounded-xl bg-amu-gold/10 flex items-center justify-center text-amu-gold group-hover:bg-amu-gold group-hover:text-white transition-all">
+              <PlusCircle size={24} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-amu-green">New Indent</h3>
+              <p className="text-xs text-gray-400">Submit a purchase request</p>
+            </div>
+          </Link>
+        )}
 
         <Link
           href="/catalogue"

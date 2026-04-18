@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -13,7 +14,6 @@ import {
   Building2,
   BarChart3,
   ClipboardList,
-  Settings,
   LogOut,
   ScrollText,
 } from "lucide-react";
@@ -22,6 +22,36 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const role = session?.user?.role;
+  const [isIndentEnabled, setIsIndentEnabled] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ENABLE_INDENT_CREATION) {
+          setIsIndentEnabled(data.ENABLE_INDENT_CREATION === "true");
+        }
+      })
+      .catch((err) => console.error("Failed to load settings:", err));
+  }, []);
+
+  const toggleIndentCreation = async () => {
+    const newValue = !isIndentEnabled;
+    setIsIndentEnabled(newValue);
+    try {
+      await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          key: "ENABLE_INDENT_CREATION",
+          value: String(newValue),
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to update setting:", error);
+      setIsIndentEnabled(!newValue); // revert
+    }
+  };
 
   const deptUserLinks = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -51,6 +81,10 @@ export default function Sidebar() {
   let links = deptUserLinks;
   if (role === "AFO_STAFF") links = afoLinks;
   if (role === "SUPER_ADMIN") links = adminLinks;
+
+  if (!isIndentEnabled && role === "DEPT_USER") {
+    links = links.filter((link) => link.href !== "/indents/new");
+  }
 
   return (
     <aside className="w-64 h-full bg-amu-green text-white flex flex-col shadow-xl">
@@ -98,6 +132,29 @@ export default function Sidebar() {
             </Link>
           );
         })}
+
+        {role === "SUPER_ADMIN" && (
+          <div className="mt-6 px-3 py-3 bg-white/5 rounded-lg border border-white/10">
+            <p className="text-[10px] uppercase tracking-wider text-white/50 mb-3">
+              System Settings
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/80 font-medium">Dept. Indent Creation</span>
+              <button
+                onClick={toggleIndentCreation}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                  isIndentEnabled ? "bg-amu-gold" : "bg-white/20"
+                }`}
+              >
+                <span
+                  className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                    isIndentEnabled ? "translate-x-5" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* User Section */}

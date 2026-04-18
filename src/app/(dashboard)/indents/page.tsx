@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { FileText, Eye, Printer, Search, Trash2, Loader2 } from "lucide-react";
 
 interface Indent {
@@ -20,8 +21,20 @@ export default function IndentsListPage() {
   const [indents, setIndents] = useState<Indent[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const { data: session } = useSession();
+  const role = session?.user?.role;
+  const [isIndentEnabled, setIsIndentEnabled] = useState(true);
 
   useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ENABLE_INDENT_CREATION) {
+          setIsIndentEnabled(data.ENABLE_INDENT_CREATION === "true");
+        }
+      })
+      .catch((err) => console.error(err));
+
     fetch("/api/indents")
       .then((res) => res.json())
       .then((data) => {
@@ -69,12 +82,14 @@ export default function IndentsListPage() {
             View and track your submitted purchase requests
           </p>
         </div>
-        <Link
-          href="/indents/new"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amu-gold text-amu-green font-semibold hover:bg-amu-gold-light transition-all shadow-sm"
-        >
-          + New Indent
-        </Link>
+        {(!isIndentEnabled && role === "DEPT_USER") ? null : (
+          <Link
+            href="/indents/new"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amu-gold text-amu-green font-semibold hover:bg-amu-gold-light transition-all shadow-sm"
+          >
+            + New Indent
+          </Link>
+        )}
       </div>
 
       {/* Search */}

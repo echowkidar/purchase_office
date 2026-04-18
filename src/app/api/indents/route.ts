@@ -94,6 +94,20 @@ export async function POST(request: Request) {
     const body = await request.json();
     const parsed = createIndentSchema.safeParse(body);
 
+    const isCPORole = session.user.role === "AFO_STAFF" || session.user.role === "SUPER_ADMIN";
+
+    if (!isCPORole) {
+      const setting = await prisma.systemSetting.findUnique({
+        where: { key: "ENABLE_INDENT_CREATION" },
+      });
+      if (setting && setting.value === "false") {
+        return NextResponse.json(
+          { error: "Indent creation is currently disabled by the administration." },
+          { status: 403 }
+        );
+      }
+    }
+
     if (!parsed.success) {
       return NextResponse.json(
         { error: parsed.error.issues[0].message },
@@ -104,8 +118,6 @@ export async function POST(request: Request) {
     // Determine department: CPO/Admin can specify departmentId, otherwise use user's own department
     let departmentId: string;
     let departmentCode: string;
-
-    const isCPORole = session.user.role === "AFO_STAFF" || session.user.role === "SUPER_ADMIN";
 
     if (isCPORole && parsed.data.departmentId) {
       // CPO creating on behalf of a department

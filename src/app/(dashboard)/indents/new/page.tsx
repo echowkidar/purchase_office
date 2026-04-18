@@ -46,6 +46,7 @@ function NewIndentContent() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [initialized, setInitialized] = useState(false);
+  const [isIndentEnabled, setIsIndentEnabled] = useState(true);
 
   // Step 1 data — restored from localStorage if user returns from catalogue
   const [purpose, setPurpose] = useState("");
@@ -55,6 +56,17 @@ function NewIndentContent() {
 
   const role = session?.user?.role;
   const isCPO = role === "AFO_STAFF" || role === "SUPER_ADMIN";
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ENABLE_INDENT_CREATION) {
+          setIsIndentEnabled(data.ENABLE_INDENT_CREATION === "true");
+        }
+      })
+      .catch((err) => console.error("Failed to load settings:", err));
+  }, []);
 
   // Restore saved basic info and auto-skip to items step if coming back from cart
   useEffect(() => {
@@ -169,6 +181,20 @@ function NewIndentContent() {
       setSubmitting(false);
     }
   };
+
+  if (!isIndentEnabled && role === "DEPT_USER") {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6 animate-fade-in text-center py-20 bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="mx-auto w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+          <CheckCircle size={32} className="text-red-500" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Indent Creation Disabled</h2>
+        <p className="text-gray-500">
+          The facility to create new indents is currently disabled by the administration.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">

@@ -452,6 +452,20 @@ function ItemDetailModal({
 
 function CartSidebar({ onClose }: { onClose: () => void }) {
   const cart = useCartStore();
+  const { data: session } = useSession();
+  const role = session?.user?.role;
+  const [isIndentEnabled, setIsIndentEnabled] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ENABLE_INDENT_CREATION) {
+          setIsIndentEnabled(data.ENABLE_INDENT_CREATION === "true");
+        }
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -543,12 +557,18 @@ function CartSidebar({ onClose }: { onClose: () => void }) {
             >
               Clear Cart
             </button>
-            <Link
-              href="/indents/new?step=items"
-              className="block w-full py-3 rounded-lg bg-amu-gold text-amu-green font-bold text-center hover:bg-amu-gold-light hover:shadow-lg transition-all transform hover:-translate-y-0.5"
-            >
-              Proceed to Checkout →
-            </Link>
+            {(!isIndentEnabled && role === "DEPT_USER") ? (
+              <div className="block w-full py-3 rounded-lg bg-gray-100 text-gray-500 font-bold text-center border border-gray-200">
+                Indent Creation Disabled
+              </div>
+            ) : (
+              <Link
+                href="/indents/new?step=items"
+                className="block w-full py-3 rounded-lg bg-amu-gold text-amu-green font-bold text-center hover:bg-amu-gold-light hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+              >
+                Proceed to Checkout →
+              </Link>
+            )}
           </div>
         )}
       </div>
