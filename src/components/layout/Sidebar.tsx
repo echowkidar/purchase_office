@@ -136,7 +136,7 @@ export default function Sidebar() {
           );
         })}
 
-        {role === "SUPER_ADMIN" && (
+        {(role === "SUPER_ADMIN" || role === "AFO_STAFF") && (
           <div className="mt-6 px-3 py-3 bg-white/5 rounded-lg border border-white/10">
             <p className="text-[10px] uppercase tracking-wider text-white/50 mb-3">
               System Settings

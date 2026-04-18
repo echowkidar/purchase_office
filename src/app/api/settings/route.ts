@@ -26,8 +26,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    // Only SUPER_ADMIN can update settings
-    if (!session || !session.user || session.user.role !== "SUPER_ADMIN") {
+    // Only SUPER_ADMIN and AFO_STAFF can update settings
+    if (!session || !session.user || (session.user.role !== "SUPER_ADMIN" && session.user.role !== "AFO_STAFF")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
