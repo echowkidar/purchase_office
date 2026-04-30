@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { sendEmail, emailUserActivated } from "@/lib/sendEmail";
+import bcrypt from "bcryptjs";
 
 export async function PATCH(
   request: Request,
@@ -19,6 +20,13 @@ export async function PATCH(
     const updateData: Record<string, unknown> = {};
     if (body.isActive !== undefined) updateData.isActive = body.isActive;
     if (body.role) updateData.role = body.role;
+    if (body.name) updateData.name = body.name;
+    if (body.email) updateData.email = body.email;
+    if (body.designation !== undefined) updateData.designation = body.designation;
+    if (body.phone !== undefined) updateData.phone = body.phone;
+    if (body.password) {
+      updateData.password = await bcrypt.hash(body.password, 12);
+    }
 
     const user = await prisma.user.update({
       where: { id },
@@ -49,7 +57,7 @@ export async function PATCH(
       data: {
         userId: session.user.id,
         userName: session.user.name,
-        action: body.isActive !== undefined ? "USER_STATUS_CHANGED" : "USER_ROLE_CHANGED",
+        action: body.isActive !== undefined ? "USER_STATUS_CHANGED" : Object.keys(updateData).length > 0 ? "USER_UPDATED" : "USER_ROLE_CHANGED",
         entity: "User",
         entityId: id,
         details: {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, UserCheck, UserX, Shield, ShieldCheck } from "lucide-react";
+import { Users, UserCheck, UserX, Shield, ShieldCheck, Edit2 } from "lucide-react";
 
 interface User {
   id: string;
@@ -18,6 +18,15 @@ interface User {
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    designation: "",
+    phone: "",
+    password: "",
+  });
+  const [saving, setSaving] = useState(false);
 
   const fetchUsers = () => {
     fetch("/api/admin/users")
@@ -49,6 +58,50 @@ export default function AdminUsersPage() {
       body: JSON.stringify({ role }),
     });
     fetchUsers();
+  };
+
+  const handleEditClick = (user: User) => {
+    setEditingUser(user);
+    setEditForm({
+      name: user.name,
+      email: user.email,
+      designation: user.designation || "",
+      phone: user.phone || "",
+      password: "",
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingUser) return;
+    setSaving(true);
+    try {
+      const payload: Record<string, string> = {
+        name: editForm.name,
+        email: editForm.email,
+        designation: editForm.designation,
+        phone: editForm.phone,
+      };
+      if (editForm.password) {
+        payload.password = editForm.password;
+      }
+      
+      const res = await fetch(`/api/admin/users/${editingUser.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setEditingUser(null);
+        fetchUsers();
+      } else {
+        alert("Failed to update user");
+      }
+    } catch (e) {
+      alert("Error updating user");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const roleBadge = (role: string) => {
@@ -144,7 +197,14 @@ export default function AdminUsersPage() {
                         </span>
                       )}
                     </td>
-                    <td className="p-3 text-center">
+                    <td className="p-3 text-center flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => handleEditClick(user)}
+                        className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+                        title="Edit User"
+                      >
+                        <Edit2 size={16} />
+                      </button>
                       <button
                         onClick={() => toggleActive(user.id, user.isActive)}
                         className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
@@ -163,6 +223,78 @@ export default function AdminUsersPage() {
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full shadow-lg p-6">
+            <h2 className="text-xl font-bold text-amu-green mb-4">Edit User</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amu-green"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amu-green"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+                <input
+                  type="text"
+                  value={editForm.designation}
+                  onChange={(e) => setEditForm({ ...editForm, designation: e.target.value })}
+                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amu-green"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input
+                  type="text"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amu-green"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Reset Password (Optional)</label>
+                <input
+                  type="password"
+                  value={editForm.password}
+                  onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
+                  placeholder="Leave blank to keep current"
+                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amu-green"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setEditingUser(null)}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 border rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={saving}
+                className="px-4 py-2 text-sm font-medium text-white bg-amu-green hover:bg-amu-green/90 rounded-lg disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
