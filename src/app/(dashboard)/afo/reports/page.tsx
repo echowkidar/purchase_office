@@ -52,7 +52,7 @@ export default function AFOReportsPage() {
   // Items table state
   const [items, setItems] = useState<ReportItem[]>([]);
   const [itemsLoading, setItemsLoading] = useState(true);
-  
+
   // Filters & Sorting
   const [search, setSearch] = useState("");
   const [deptFilter, setDeptFilter] = useState("");
@@ -108,11 +108,11 @@ export default function AFOReportsPage() {
       "Urgency": item.indent.urgency,
       "Dept Remarks": item.remarks || "",
       "CPO Supply Status / Remark": item.cpoRemarks || "",
-      "Year 1 (Label)": item.year1Label || "—",
+      "Year 1": item.year1Label || "—",
       "Year 1 (Qty)": item.year1Qty ?? 0,
-      "Year 2 (Label)": item.year2Label || "—",
+      "Year 2": item.year2Label || "—",
       "Year 2 (Qty)": item.year2Qty ?? 0,
-      "Year 3 (Label)": item.year3Label || "—",
+      "Year 3": item.year3Label || "—",
       "Year 3 (Qty)": item.year3Qty ?? 0
     }));
 
@@ -157,17 +157,17 @@ export default function AFOReportsPage() {
       if (deptFilter && item.indent.department.name !== deptFilter) return false;
       if (categoryFilter && item.item.category.name !== categoryFilter) return false;
       if (itemFilter && item.item.name !== itemFilter) return false;
-      
+
       if (monthFilter) {
         const itemMonth = new Date(item.indent.createdAt).getMonth() + 1;
         if (itemMonth.toString() !== monthFilter) return false;
       }
-      
+
       if (yearFilter) {
         const itemYear = new Date(item.indent.createdAt).getFullYear();
         if (itemYear.toString() !== yearFilter) return false;
       }
-      
+
       if (remarkStatusFilter) {
         const val = item.cpoRemarks || "";
         if (!val.toLowerCase().includes(remarkStatusFilter.toLowerCase())) return false;
@@ -175,7 +175,7 @@ export default function AFOReportsPage() {
 
       const searchTerms = search.toLowerCase();
       if (
-        search && 
+        search &&
         !(
           item.item.name.toLowerCase().includes(searchTerms) ||
           (item.indent.receiptNo && item.indent.receiptNo.toLowerCase().includes(searchTerms)) ||
@@ -187,7 +187,7 @@ export default function AFOReportsPage() {
     .sort((a, b) => {
       let valA = "";
       let valB = "";
-      
+
       if (sortField === "receiptNo") {
         valA = a.indent.receiptNo || "zzz";
         valB = b.indent.receiptNo || "zzz";
@@ -281,7 +281,7 @@ export default function AFOReportsPage() {
               className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-amu-green/30"
             />
           </div>
-          
+
           <div className="flex flex-wrap gap-3 w-full lg:w-auto">
             <select
               value={categoryFilter}
@@ -293,7 +293,7 @@ export default function AFOReportsPage() {
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
-            
+
             <select
               value={itemFilter}
               onChange={(e) => setItemFilter(e.target.value)}
@@ -364,18 +364,18 @@ export default function AFOReportsPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-y border-gray-100">
                 <tr>
-                  <th 
+                  <th
                     className="text-left p-3 text-gray-500 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
                     onClick={() => handleSort("receiptNo")}
                   >
-                    <div className="flex items-center gap-1">Receipt No. <ArrowUpDown size={14}/></div>
+                    <div className="flex items-center gap-1">Receipt No. <ArrowUpDown size={14} /></div>
                   </th>
                   <th className="text-left p-3 text-gray-500 font-medium">Receipt Date</th>
-                  <th 
+                  <th
                     className="text-left p-3 text-gray-500 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
                     onClick={() => handleSort("department")}
                   >
-                    <div className="flex items-center gap-1">Department <ArrowUpDown size={14}/></div>
+                    <div className="flex items-center gap-1">Department <ArrowUpDown size={14} /></div>
                   </th>
                   <th className="text-left p-3 text-gray-500 font-medium">Phone Number</th>
                   <th className="text-left p-3 text-gray-500 font-medium">Category</th>
