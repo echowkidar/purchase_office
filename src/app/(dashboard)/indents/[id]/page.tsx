@@ -74,7 +74,7 @@ export default function IndentDetailPage() {
     indent &&
     ((role === "DEPT_USER" && indent.status === "DRAFT") ||
       ((role === "AFO_STAFF" || role === "SUPER_ADMIN") &&
-        (indent.status === "CPO_RECEIVED" || indent.status === "DRAFT")));
+        (indent.status === "CPO_RECEIVED" || indent.status === "DRAFT" || indent.status === "SUBMITTED")));
 
   // Check if current user can submit (DRAFT → SUBMITTED)
   const canSubmit =

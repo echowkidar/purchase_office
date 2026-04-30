@@ -10,6 +10,8 @@ import {
   Plus,
   Minus,
   Trash2,
+  Search,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -56,10 +58,18 @@ export default function EditIndentPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Editable fields
   const [purpose, setPurpose] = useState("");
   const [urgency, setUrgency] = useState<"NORMAL" | "URGENT">("NORMAL");
   const [items, setItems] = useState<IndentItem[]>([]);
+
+  // Add Item Modal State
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [availableItems, setAvailableItems] = useState<any[]>([]);
+  const [itemSearch, setItemSearch] = useState("");
+  const [selectedItemId, setSelectedItemId] = useState("");
+  const [selectedVariantId, setSelectedVariantId] = useState("");
+  const [newItemQty, setNewItemQty] = useState(1);
+  const [addingItem, setAddingItem] = useState(false);
 
   useEffect(() => {
     fetch(`/api/indents/${id}`)
@@ -82,7 +92,7 @@ export default function EditIndentPage() {
     indent &&
     ((role === "DEPT_USER" && indent.status === "DRAFT") ||
       ((role === "AFO_STAFF" || role === "SUPER_ADMIN") &&
-        (indent.status === "CPO_RECEIVED" || indent.status === "DRAFT")));
+        (indent.status === "CPO_RECEIVED" || indent.status === "DRAFT" || indent.status === "SUBMITTED")));
 
   const updateItemField = (itemId: string, field: string, value: string | number) => {
     setItems((prev) =>
@@ -98,6 +108,51 @@ export default function EditIndentPage() {
       return;
     }
     setItems((prev) => prev.filter((item) => item.id !== itemId));
+  };
+
+  const openAddModal = () => {
+    setShowAddModal(true);
+    setAddingItem(true);
+    fetch("/api/items?active=true")
+      .then((res) => res.json())
+      .then((data) => {
+        setAvailableItems(Array.isArray(data) ? data : []);
+        setAddingItem(false);
+      })
+      .catch(() => setAddingItem(false));
+  };
+
+  const handleAddNewItem = () => {
+    if (!selectedItemId) return;
+    const itemDef = availableItems.find(i => i.id === selectedItemId);
+    if (!itemDef) return;
+
+    const newItem: IndentItem = {
+      id: "new-" + Date.now(), // temporary ID
+      itemId: selectedItemId,
+      quantity: newItemQty,
+      variantId: selectedVariantId || undefined,
+      year1Label: "2023-24", // Defaults
+      year1Qty: 0,
+      year2Label: "2024-25",
+      year2Qty: 0,
+      year3Label: "2025-26",
+      year3Qty: 0,
+      remarks: "",
+      usedByName: "",
+      item: {
+        name: itemDef.name,
+        category: { name: itemDef.category?.name || "Unknown" },
+        variants: itemDef.variants || [],
+      }
+    };
+
+    setItems([...items, newItem]);
+    setShowAddModal(false);
+    setSelectedItemId("");
+    setSelectedVariantId("");
+    setNewItemQty(1);
+    setItemSearch("");
   };
 
   const handleSave = async () => {
@@ -249,9 +304,17 @@ export default function EditIndentPage() {
 
       {/* Items */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-        <h2 className="text-lg font-semibold text-amu-green">
-          Items ({items.length})
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-amu-green">
+            Items ({items.length})
+          </h2>
+          <button
+            onClick={openAddModal}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amu-gold text-amu-green font-semibold text-sm hover:bg-amu-gold-light transition-all"
+          >
+            <Plus size={14} /> Add Item
+          </button>
+        </div>
 
         {items.map((item, idx) => {
           const variant = item.item.variants.find((v) => v.id === item.variantId);
@@ -402,6 +465,112 @@ export default function EditIndentPage() {
           )}
         </button>
       </div>
+
+      {/* Add Item Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-fade-in overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
+              <h3 className="text-lg font-bold text-amu-green">Add Item from Catalogue</h3>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-4 flex-1 overflow-y-auto space-y-4">
+              <div className="relative">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search catalogue..."
+                  value={itemSearch}
+                  onChange={(e) => setItemSearch(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amu-green/20"
+                />
+              </div>
+
+              {addingItem ? (
+                <div className="text-center py-8 text-gray-400"><Loader2 className="animate-spin mx-auto" /></div>
+              ) : (
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                  {availableItems
+                    .filter(i => i.name.toLowerCase().includes(itemSearch.toLowerCase()) || i.itemCode?.toLowerCase().includes(itemSearch.toLowerCase()))
+                    .map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          setSelectedItemId(item.id);
+                          setSelectedVariantId("");
+                        }}
+                        className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                          selectedItemId === item.id
+                            ? "border-amu-green bg-amu-green/5"
+                            : "border-gray-200 hover:border-amu-green/30 hover:bg-gray-50"
+                        }`}
+                      >
+                        <div className="font-medium text-amu-green">{item.name}</div>
+                        <div className="text-xs text-gray-400">
+                          {item.category?.name} {item.itemCode && `• ${item.itemCode}`}
+                        </div>
+                      </div>
+                  ))}
+                </div>
+              )}
+
+              {selectedItemId && (
+                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 mt-4 space-y-4">
+                  {availableItems.find(i => i.id === selectedItemId)?.variants?.length > 0 && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Select Variant</label>
+                      <select
+                        value={selectedVariantId}
+                        onChange={(e) => setSelectedVariantId(e.target.value)}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200"
+                        required
+                      >
+                        <option value="">Select Variant...</option>
+                        {availableItems.find(i => i.id === selectedItemId)?.variants.map((v: any) => (
+                          <option key={v.id} value={v.id}>{v.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={newItemQty}
+                      onChange={(e) => setNewItemQty(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddNewItem}
+                disabled={!selectedItemId || (availableItems.find(i => i.id === selectedItemId)?.variants?.length > 0 && !selectedVariantId)}
+                className="px-6 py-2 rounded-lg bg-amu-green text-white font-medium hover:bg-amu-green-mid disabled:opacity-50"
+              >
+                Add to Indent
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

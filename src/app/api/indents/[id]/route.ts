@@ -127,7 +127,7 @@ export async function PUT(
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
       }
     } else if (role === "AFO_STAFF" || role === "SUPER_ADMIN") {
-      if (indent.status !== "DRAFT" && indent.status !== "CPO_RECEIVED") {
+      if (indent.status !== "DRAFT" && indent.status !== "CPO_RECEIVED" && indent.status !== "SUBMITTED") {
         return NextResponse.json({ error: "Cannot edit indent in this status" }, { status: 400 });
       }
     } else {
@@ -154,7 +154,7 @@ export async function PUT(
       });
 
       // Delete removed items
-      const keepIds = body.items.map((i: { id: string }) => i.id).filter(Boolean);
+      const keepIds = body.items.map((i: { id: string }) => i.id).filter((id: string) => id && !id.startsWith("new-"));
       await tx.indentItem.deleteMany({
         where: {
           indentId: id,
@@ -162,9 +162,9 @@ export async function PUT(
         },
       });
 
-      // Update existing items
+      // Update existing or create new items
       for (const item of body.items) {
-        if (item.id) {
+        if (item.id && !item.id.startsWith("new-")) {
           await tx.indentItem.update({
             where: { id: item.id },
             data: {
@@ -173,6 +173,27 @@ export async function PUT(
               year1Remarks: item.year1Remarks || "",
               year2Qty: item.year2Qty || 0,
               year2Remarks: item.year2Remarks || "",
+              year3Qty: item.year3Qty || 0,
+              year3Remarks: item.year3Remarks || "",
+              remarks: item.remarks || "",
+              usedByName: item.usedByName || "",
+            },
+          });
+        } else {
+          // Create new item
+          await tx.indentItem.create({
+            data: {
+              indentId: id,
+              itemId: item.itemId,
+              variantId: item.variantId,
+              quantity: item.quantity,
+              year1Label: item.year1Label || "",
+              year1Qty: item.year1Qty || 0,
+              year1Remarks: item.year1Remarks || "",
+              year2Label: item.year2Label || "",
+              year2Qty: item.year2Qty || 0,
+              year2Remarks: item.year2Remarks || "",
+              year3Label: item.year3Label || "",
               year3Qty: item.year3Qty || 0,
               year3Remarks: item.year3Remarks || "",
               remarks: item.remarks || "",
