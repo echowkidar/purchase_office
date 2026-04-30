@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
@@ -467,8 +468,8 @@ export default function EditIndentPage() {
       </div>
 
       {/* Add Item Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      {showAddModal && typeof document !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-fade-in overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
               <h3 className="text-lg font-bold text-amu-green">Add Item from Catalogue</h3>
@@ -569,7 +570,8 @@ export default function EditIndentPage() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
