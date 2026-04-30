@@ -16,6 +16,12 @@ interface ReportItem {
   cpoRemarks: string | null;
   remarks: string | null;
   usedByName: string | null;
+  year1Label: string | null;
+  year1Qty: number | null;
+  year2Label: string | null;
+  year2Qty: number | null;
+  year3Label: string | null;
+  year3Qty: number | null;
   item: {
     name: string;
     description: string | null;
@@ -101,7 +107,13 @@ export default function AFOReportsPage() {
       "Quantity": item.quantity,
       "Urgency": item.indent.urgency,
       "Dept Remarks": item.remarks || "",
-      "CPO Supply Status / Remark": item.cpoRemarks || ""
+      "CPO Supply Status / Remark": item.cpoRemarks || "",
+      "Year 1 (Label)": item.year1Label || "—",
+      "Year 1 (Qty)": item.year1Qty ?? 0,
+      "Year 2 (Label)": item.year2Label || "—",
+      "Year 2 (Qty)": item.year2Qty ?? 0,
+      "Year 3 (Label)": item.year3Label || "—",
+      "Year 3 (Qty)": item.year3Qty ?? 0
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(data);
