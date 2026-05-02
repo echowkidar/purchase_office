@@ -142,3 +142,25 @@ export function emailUserActivated(userName: string) {
     `,
   };
 }
+
+export function emailUserRegistered(userName: string) {
+  return {
+    subject: "Registration Successful - AMU CPO Portal",
+    html: `
+      <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #1B4332; color: white; padding: 20px; text-align: center;">
+          <h2 style="margin: 0;">AMU Central Purchase Office</h2>
+        </div>
+        <div style="padding: 20px; background: #f9f9f9;">
+          <h3>Registration Successful</h3>
+          <p>Dear ${userName},</p>
+          <p>Your registration on the CPO Procurement Portal was successful.</p>
+          <p>Your account is currently pending approval from the administrator. You will receive another email once your account has been activated.</p>
+        </div>
+        <div style="background: #1B4332; color: #C9A84C; padding: 10px; text-align: center; font-size: 12px;">
+          Aligarh Muslim University, Aligarh
+        </div>
+      </div>
+    `,
+  };
+}

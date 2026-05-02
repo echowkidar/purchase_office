@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validators";
+import { sendEmail, emailUserRegistered } from "@/lib/sendEmail";
 
 export async function POST(request: Request) {
   try {
@@ -64,6 +65,14 @@ export async function POST(request: Request) {
         isActive: true,
       },
     });
+
+    // Send registration email
+    try {
+      const emailData = emailUserRegistered(user.name);
+      await sendEmail({ to: user.email, ...emailData });
+    } catch (e) {
+      console.error("Failed to send registration email:", e);
+    }
 
     // Create audit log
     await prisma.auditLog.create({
