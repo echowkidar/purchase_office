@@ -18,6 +18,10 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const [step, setStep] = useState(1);
+  const [otp, setOtp] = useState("");
+  const [hashData, setHashData] = useState<{ hash: string; timestamp: number } | null>(null);
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -41,7 +45,7 @@ export default function RegisterPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleStep1Submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -60,10 +64,46 @@ export default function RegisterPage() {
     }
 
     try {
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Failed to send OTP");
+      } else {
+        setSuccess("OTP sent to your email! Please verify.");
+        setHashData({ hash: data.hash, timestamp: data.timestamp });
+        setStep(2);
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStep2Submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!hashData || !otp) return;
+
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          otp,
+          hash: hashData.hash,
+          timestamp: hashData.timestamp,
+        }),
       });
 
       const data = await res.json();
@@ -71,7 +111,7 @@ export default function RegisterPage() {
       if (!res.ok) {
         setError(data.error);
       } else {
-        setSuccess(data.message);
+        setSuccess(data.message || "Registration successful!");
         setTimeout(() => router.push("/login"), 3000);
       }
     } catch {
@@ -135,7 +175,8 @@ export default function RegisterPage() {
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {step === 1 && (
+            <form onSubmit={handleStep1Submit} className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-white/80 mb-1">
                 Full Name
@@ -269,9 +310,45 @@ export default function RegisterPage() {
               disabled={loading}
               className="w-full py-2.5 rounded-lg bg-amu-gold hover:bg-amu-gold-light text-amu-green font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mt-2"
             >
-              {loading ? "Creating Account..." : "Register"}
+              {loading ? "Sending OTP..." : "Continue"}
             </button>
           </form>
+          )}
+
+          {step === 2 && (
+            <form onSubmit={handleStep2Submit} className="space-y-4">
+              <div>
+                <label htmlFor="otp" className="block text-sm font-medium text-white/80 mb-2 text-center">
+                  Enter 6-Digit Verification Code
+                </label>
+                <input
+                  id="otp"
+                  name="otp"
+                  type="text"
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                  placeholder="123456"
+                  required
+                  className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amu-gold/50 transition-all text-center text-2xl tracking-widest"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading || otp.length !== 6}
+                className="w-full py-2.5 rounded-lg bg-amu-gold hover:bg-amu-gold-light text-amu-green font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mt-4"
+              >
+                {loading ? "Verifying..." : "Verify & Register"}
+              </button>
+
+              <div className="text-center mt-4">
+                 <button type="button" onClick={() => { setStep(1); setSuccess(""); setError(""); }} className="text-sm text-white/60 hover:text-white transition-colors">
+                    &larr; Back to Edit Details
+                 </button>
+              </div>
+            </form>
+          )}
 
           {/* Links */}
           <div className="mt-5 text-center text-sm text-white/50">
