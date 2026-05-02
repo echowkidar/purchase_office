@@ -155,7 +155,7 @@ export function emailUserRegistered(userName: string) {
           <h3>Registration Successful</h3>
           <p>Dear ${userName},</p>
           <p>Your registration on the CPO Procurement Portal was successful.</p>
-          <p>Your account is currently pending approval from the administrator. You will receive another email once your account has been activated.</p>
+          <p>Your account is now functional.</p>
         </div>
         <div style="background: #1B4332; color: #C9A84C; padding: 10px; text-align: center; font-size: 12px;">
           Aligarh Muslim University, Aligarh
