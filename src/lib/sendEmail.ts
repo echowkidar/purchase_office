@@ -190,3 +190,30 @@ export function emailOtpVerification(otp: string) {
     `,
   };
 }
+
+export function emailPasswordResetOtp(otp: string) {
+  return {
+    subject: "Password Reset Code - AMU CPO Portal",
+    html: `
+      <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #1B4332; color: white; padding: 20px; text-align: center;">
+          <h2 style="margin: 0;">AMU Central Purchase Office</h2>
+        </div>
+        <div style="padding: 20px; background: #f9f9f9; text-align: center;">
+          <h3>Password Reset Request</h3>
+          <p>We received a request to reset the password for your account.</p>
+          <p>Please use the following 6-digit code to reset your password. This code is valid for 15 minutes.</p>
+          <div style="margin: 30px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1B4332; padding: 15px 30px; background: #E8F5E9; border-radius: 8px; border: 1px dashed #4CAF50;">
+              ${otp}
+            </span>
+          </div>
+          <p style="font-size: 13px; color: #666;">If you did not request a password reset, please ignore this email or contact support if you have concerns.</p>
+        </div>
+        <div style="background: #1B4332; color: #C9A84C; padding: 10px; text-align: center; font-size: 12px;">
+          Aligarh Muslim University, Aligarh
+        </div>
+      </div>
+    `,
+  };
+}

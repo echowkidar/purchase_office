@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { sendEmail, emailOtpVerification } from "@/lib/sendEmail";
+import { prisma } from "@/lib/prisma";
+import { sendEmail, emailOtpVerification, emailPasswordResetOtp } from "@/lib/sendEmail";
 
 export async function POST(request: Request) {
   try {
-    const { email } = await request.json();
+    const { email, type } = await request.json();
 
     if (!email || !email.endsWith("@amu.ac.in")) {
       return NextResponse.json(
@@ -13,13 +14,25 @@ export async function POST(request: Request) {
       );
     }
 
+    if (type === "reset") {
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+      });
+      if (!existingUser) {
+        return NextResponse.json(
+          { error: "No account found with this email address" },
+          { status: 404 }
+        );
+      }
+    }
+
     // Generate 6 digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const timestamp = Date.now();
 
     // Send OTP via email
     try {
-      const emailData = emailOtpVerification(otp);
+      const emailData = type === "reset" ? emailPasswordResetOtp(otp) : emailOtpVerification(otp);
       await sendEmail({ to: email, ...emailData });
     } catch (error) {
       console.error("Failed to send OTP email:", error);
