@@ -34,7 +34,7 @@ export async function GET(request: Request) {
             status: true,
             createdAt: true,
             department: { select: { name: true, code: true } },
-            requestedBy: { select: { name: true, phone: true } }
+            requestedBy: { select: { name: true, phone: true, email: true, designation: true } }
           }
         },
         item: {

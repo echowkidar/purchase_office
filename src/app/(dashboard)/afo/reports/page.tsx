@@ -38,7 +38,7 @@ interface ReportItem {
     createdAt: string;
     status: string;
     department: { name: string; code: string };
-    requestedBy: { name: string; phone?: string | null };
+    requestedBy: { name: string; phone?: string | null; email?: string; designation?: string | null };
   };
 }
 
@@ -98,6 +98,9 @@ export default function AFOReportsPage() {
       "Receipt No.": item.indent.receiptNo || "—",
       "Receipt Date": item.indent.receiptDate ? new Date(item.indent.receiptDate).toLocaleDateString("en-IN") : "—",
       "Department": item.indent.department.name,
+      "Requester Name": item.indent.requestedBy?.name || "—",
+      "Requester Email": item.indent.requestedBy?.email || "—",
+      "Requester Designation": item.indent.requestedBy?.designation || "—",
       "Phone Number": item.indent.requestedBy?.phone || "—",
       "Category": item.item.category.name,
       "Items": item.item.name,
