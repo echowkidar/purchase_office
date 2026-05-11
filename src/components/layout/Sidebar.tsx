@@ -16,6 +16,7 @@ import {
   ClipboardList,
   LogOut,
   ScrollText,
+  IdCard,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -61,6 +62,7 @@ export default function Sidebar() {
     { href: "/catalogue", label: "Item Catalogue", icon: ShoppingCart },
     { href: "/indents", label: "My Indents", icon: FileText },
     { href: "/indents/new", label: "New Indent", icon: ClipboardList },
+    { href: "/gem-requests", label: "GeM ID Requests", icon: IdCard },
   ];
 
   const afoLinks = [
@@ -70,6 +72,7 @@ export default function Sidebar() {
     { href: "/catalogue", label: "Item Catalogue", icon: ShoppingCart },
     { href: "/indents/new", label: "New Indent", icon: ClipboardList },
     { href: "/indents", label: "All Indents", icon: FileText },
+    { href: "/afo/gem-requests", label: "GeM ID Requests", icon: IdCard },
   ];
 
   const adminLinks = [
@@ -79,6 +82,7 @@ export default function Sidebar() {
     { href: "/afo/dashboard", label: "AFO Dashboard", icon: LayoutDashboard },
     { href: "/afo/items", label: "Manage Items", icon: Package },
     { href: "/afo/reports", label: "Reports", icon: BarChart3 },
+    { href: "/afo/gem-requests", label: "GeM ID Requests", icon: IdCard },
   ];
 
   let links = deptUserLinks;

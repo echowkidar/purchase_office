@@ -10,6 +10,7 @@ import {
   CheckCircle,
   PlusCircle,
   ArrowRight,
+  IdCard,
 } from "lucide-react";
 
 interface DashboardStats {
@@ -29,6 +30,7 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isIndentEnabled, setIsIndentEnabled] = useState(true);
+  const [gemStats, setGemStats] = useState<{ total: number; pending: number } | null>(null);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -43,6 +45,11 @@ export default function DashboardPage() {
     fetch("/api/indents?summary=true")
       .then((res) => res.json())
       .then(setStats)
+      .catch(() => {});
+
+    fetch("/api/gem-requests?summary=true")
+      .then((res) => res.json())
+      .then((data) => setGemStats({ total: data.total || 0, pending: data.pending || 0 }))
       .catch(() => {});
   }, []);
 
@@ -114,6 +121,18 @@ export default function DashboardPage() {
             <p className="text-xs text-gray-400">Track your requests</p>
           </div>
         </Link>
+        <Link
+          href="/gem-requests"
+          className="group bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-4"
+        >
+          <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all">
+            <IdCard size={24} />
+          </div>
+          <div>
+            <h3 className="font-semibold text-amu-green">GeM ID Requests</h3>
+            <p className="text-xs text-gray-400">Request GeM portal user ID</p>
+          </div>
+        </Link>
       </div>
 
       {/* Stats Cards */}
@@ -149,6 +168,17 @@ export default function DashboardPage() {
               </p>
             </div>
             <CheckCircle size={32} className="text-status-received/20" />
+          </div>
+        </Link>
+        <Link href="/gem-requests" className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-purple-300 hover:shadow-md transition-all cursor-pointer block">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-400">GeM ID Requests</p>
+              <p className="text-3xl font-bold text-purple-600 mt-1">
+                {gemStats?.total ?? "—"}
+              </p>
+            </div>
+            <IdCard size={32} className="text-purple-600/20" />
           </div>
         </Link>
       </div>

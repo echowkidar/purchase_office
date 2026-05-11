@@ -28,6 +28,19 @@ enum Urgency {
   URGENT
 }
 
+enum GemRequestType {
+  CREATE
+  REPLACE
+}
+
+enum GemRequestStatus {
+  DRAFT
+  SUBMITTED
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+}
+
 // ──────────────────── MODELS ────────────────────
 
 model User {
@@ -44,6 +57,7 @@ model User {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   indents      Indent[]
+  gemRequests  GemRequest[] @relation("GemRequestedBy")
 
   @@index([email])
   @@index([departmentId])
@@ -56,6 +70,7 @@ model Department {
   isActive Boolean  @default(true)
   users    User[]
   indents  Indent[]
+  gemRequests GemRequest[]
 
   @@index([code])
 }
@@ -193,4 +208,62 @@ model SystemSetting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+model GemRequest {
+  id              String           @id @default(cuid())
+  requisitionNo   String           @unique  // GEM/EEN/2026/0001
+  receiptNo       String?          // e.g. GEM/RC/2026/001
+  requestType     GemRequestType
+  status          GemRequestStatus @default(SUBMITTED)
+
+  // Department side
+  departmentId    String
+  department      Department       @relation(fields: [departmentId], references: [id])
+  requestedById   String
+  requestedBy     User             @relation("GemRequestedBy", fields: [requestedById], references: [id])
+
+  // Form fields
+  unitName        String
+  userName        String
+  institutionalEmail String
+  mobileNumber    String
+  dateOfBirth     String?
+  dateOfRetirement String?
+  roleToAssign    String           
+  hasExistingNicEmail Boolean      @default(false)
+  existingNicEmail String?
+  oldGemId        String?          
+  lastUserName    String?          
+  idRequiredFor   String?          
+  projectName     String?
+  fundedBy        String?
+  projectCode     String?
+
+  // HOD info
+  hodName         String?
+  hodDesignation  String?
+  hodPhone        String?
+
+  // Remarks / internal notes
+  afoRemarks      String?
+
+  // Credential fields
+  gemLoginId      String?          
+  gemPassword     String?          
+  gemRole         String?          
+  credentialEmailSentAt DateTime?  
+
+  // Tracking
+  processedById   String?          
+  processedAt     DateTime?
+  rejectedReason  String?
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([departmentId])
+  @@index([requestedById])
+  @@index([status])
+  @@index([requisitionNo])
 }

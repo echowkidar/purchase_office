@@ -10,6 +10,7 @@ import {
   Eye,
   Search,
   Filter,
+  IdCard,
 } from "lucide-react";
 
 interface Indent {
@@ -34,6 +35,7 @@ export default function AFODashboardPage() {
   const [showReceiveDialog, setShowReceiveDialog] = useState<string | null>(null);
   const [receiptNo, setReceiptNo] = useState("");
   const [receiptDate, setReceiptDate] = useState("");
+  const [gemPending, setGemPending] = useState<number | null>(null);
 
   const fetchIndents = () => {
     setLoading(true);
@@ -48,6 +50,10 @@ export default function AFODashboardPage() {
 
   useEffect(() => {
     fetchIndents();
+    fetch("/api/gem-requests?summary=true")
+      .then((r) => r.json())
+      .then((d) => setGemPending(d.pending ?? 0))
+      .catch(() => {});
   }, []);
 
   const filtered = indents.filter((i) => {
@@ -142,6 +148,15 @@ export default function AFODashboardPage() {
             <FileText size={28} className="text-gray-300" />
           </div>
         </div>
+        <Link href="/afo/gem-requests" className="bg-white rounded-xl p-5 shadow-sm border border-purple-100 hover:border-purple-300 transition-all">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-400">GeM Requests Pending</p>
+              <p className="text-3xl font-bold text-purple-600 mt-1">{gemPending ?? "—"}</p>
+            </div>
+            <IdCard size={28} className="text-purple-600/20" />
+          </div>
+        </Link>
       </div>
 
       {/* Filters */}

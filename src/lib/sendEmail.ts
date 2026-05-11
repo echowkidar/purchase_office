@@ -217,3 +217,114 @@ export function emailPasswordResetOtp(otp: string) {
     `,
   };
 }
+
+export function emailGemRequestSubmitted(reqNo: string, deptName: string, requestType: string) {
+  return {
+    subject: `GeM Portal ID Request Submitted - ${reqNo}`,
+    html: `
+      <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #1B4332; color: white; padding: 20px; text-align: center;">
+          <h2 style="margin: 0;">AMU Central Purchase Office</h2>
+        </div>
+        <div style="padding: 20px; background: #f9f9f9;">
+          <h3>GeM Request Submitted Successfully</h3>
+          <p>Your request for GeM Portal User ID (${requestType}) has been submitted to the Central Purchase Office.</p>
+          <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+            <tr><td style="padding: 8px; font-weight: bold;">Requisition No:</td><td style="padding: 8px;">${reqNo}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Department:</td><td style="padding: 8px;">${deptName}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Type:</td><td style="padding: 8px;">${requestType}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Status:</td><td style="padding: 8px;">Submitted</td></tr>
+          </table>
+          <p>You will be notified once the CPO processes your request.</p>
+        </div>
+        <div style="background: #1B4332; color: #C9A84C; padding: 10px; text-align: center; font-size: 12px;">
+          Aligarh Muslim University, Aligarh
+        </div>
+      </div>
+    `,
+  };
+}
+
+export function emailGemCredentials(params: {
+  userName: string;
+  designation: string;
+  phone: string;
+  gemRole: string;
+  gemLoginId: string;
+  gemPassword?: string;
+  reqNo: string;
+  date: string;
+}) {
+  return {
+    subject: `Your GeM Portal Login Credentials - ${params.reqNo}`,
+    html: `
+      <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #1B4332; color: white; padding: 20px; text-align: center;">
+          <h2 style="margin: 0;">AMU Central Purchase Office</h2>
+        </div>
+        <div style="padding: 20px; background: #f9f9f9;">
+          <h3>GeM Portal Credentials Created</h3>
+          <p>Dear ${params.userName},</p>
+          <p>Your GeM Portal User ID has been successfully created/updated based on your request.</p>
+          
+          <table style="width: 100%; border-collapse: collapse; margin: 15px 0; background: white; border: 1px solid #ddd;">
+            <tr><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Name</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${params.userName}</td></tr>
+            <tr><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Designation</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${params.designation || 'N/A'}</td></tr>
+            <tr><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Phone</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${params.phone || 'N/A'}</td></tr>
+            <tr><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">GeM Role</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${params.gemRole}</td></tr>
+            <tr><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #1B4332;">GeM Login ID</td><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">${params.gemLoginId}</td></tr>
+            ${params.gemPassword ? `<tr><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #1B4332;">Password</td><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">${params.gemPassword}</td></tr>` : ''}
+          </table>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="https://gem.gov.in/" style="background: #1B4332; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to GeM Portal</a>
+          </div>
+          
+          <div style="background: #fff3cd; color: #856404; padding: 15px; border-left: 4px solid #ffeeba; margin-top: 20px; font-size: 13px;">
+            <strong>Security Advisory:</strong>
+            <ul style="margin-top: 5px; margin-bottom: 0; padding-left: 20px;">
+              <li>Please change your password immediately upon first login.</li>
+              <li>Keep your credentials secure and do not share them.</li>
+              <li>Notify CPO immediately upon retirement or transfer.</li>
+            </ul>
+          </div>
+          <p style="font-size: 12px; color: #666; margin-top: 20px;">Ref: ${params.reqNo} | Date: ${params.date}</p>
+        </div>
+        <div style="background: #1B4332; color: #C9A84C; padding: 10px; text-align: center; font-size: 12px;">
+          Aligarh Muslim University, Aligarh
+        </div>
+      </div>
+    `,
+  };
+}
+
+export function emailGemRequestStatusUpdate(reqNo: string, status: string, remark?: string) {
+  let statusColor = status === 'IN_PROGRESS' ? '#f59e0b' : status === 'REJECTED' ? '#ef4444' : '#10b981';
+  let statusText = status === 'IN_PROGRESS' ? 'In Progress' : status === 'REJECTED' ? 'Rejected' : 'Completed';
+
+  return {
+    subject: `GeM Request Update: ${statusText} - ${reqNo}`,
+    html: `
+      <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #1B4332; color: white; padding: 20px; text-align: center;">
+          <h2 style="margin: 0;">AMU Central Purchase Office</h2>
+        </div>
+        <div style="padding: 20px; background: #f9f9f9;">
+          <h3>GeM Request Status Update</h3>
+          <p>The status of your GeM Portal ID request has been updated.</p>
+          
+          <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+            <tr><td style="padding: 8px; font-weight: bold; width: 40%;">Requisition No:</td><td style="padding: 8px;">${reqNo}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">New Status:</td><td style="padding: 8px; color: ${statusColor}; font-weight: bold;">${statusText}</td></tr>
+            ${remark ? `<tr><td style="padding: 8px; font-weight: bold; vertical-align: top;">Remarks:</td><td style="padding: 8px; background: #fff; border: 1px solid #ddd; font-style: italic;">${remark}</td></tr>` : ''}
+          </table>
+          
+          <p>You can view the full details on the CPO portal.</p>
+        </div>
+        <div style="background: #1B4332; color: #C9A84C; padding: 10px; text-align: center; font-size: 12px;">
+          Aligarh Muslim University, Aligarh
+        </div>
+      </div>
+    `,
+  };
+}
