@@ -271,8 +271,7 @@ export default function GemRequestPrintPage() {
 
         {/* Address */}
         <div className="address-block">
-          <p><strong>To,</strong></p>
-          <p>The Assistant Finance Officer,</p>
+          <p>Assistant Finance Officer,</p>
           <p>Central Purchase Office, Aligarh Muslim University, Aligarh.</p>
         </div>
 
@@ -286,7 +285,6 @@ export default function GemRequestPrintPage() {
         </p>
 
         <p className="body-text">
-          Sir/Madam,<br />
           With due respect, it is requested that the GeM Portal User ID may kindly be{" "}
           {req.requestType === "CREATE" ? "created" : "replaced"} for the following user:
         </p>
