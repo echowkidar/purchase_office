@@ -140,11 +140,13 @@ export default function GemRequestPrintPage() {
         .subject-line {
           margin: 5px 0 3px;
           font-size: 10pt;
+          padding-left: 16px;
         }
 
         .ref-line {
           font-size: 10pt;
           margin-bottom: 5px;
+          padding-left: 16px;
         }
 
         .body-text {
@@ -272,7 +274,8 @@ export default function GemRequestPrintPage() {
         {/* Address */}
         <div className="address-block">
           <p>Assistant Finance Officer,</p>
-          <p>Central Purchase Office, Aligarh Muslim University, Aligarh.</p>
+          <p>Central Purchase Office,</p>
+          <p>Aligarh Muslim University, Aligarh.</p>
         </div>
 
         <p className="subject-line">
