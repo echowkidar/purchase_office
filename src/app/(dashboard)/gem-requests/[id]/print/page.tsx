@@ -10,8 +10,10 @@ interface GemRequest {
   status: string;
   unitName: string;
   userName: string;
+  userDesignation?: string;
   institutionalEmail: string;
   mobileNumber: string;
+  aadharNumber?: string;
   dateOfBirth?: string;
   dateOfRetirement?: string;
   roleToAssign: string;
@@ -73,7 +75,7 @@ export default function GemRequestPrintPage() {
       <style>{`
         @page {
           size: A4 portrait;
-          margin: 10mm 12mm 10mm 12mm;
+          margin: 0;
         }
 
         * {
@@ -171,7 +173,7 @@ export default function GemRequestPrintPage() {
         .details-table .label {
           font-weight: bold;
           width: 42%;
-          background: #f7f7f7;
+          background: transparent;
         }
 
         .undertaking-box {
@@ -228,7 +230,11 @@ export default function GemRequestPrintPage() {
 
         @media print {
           #no-print { display: none !important; }
-          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          body { 
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact; 
+            padding: 10mm 12mm 10mm 12mm;
+          }
         }
 
         @media screen {
@@ -304,12 +310,20 @@ export default function GemRequestPrintPage() {
               <td>{req.userName}</td>
             </tr>
             <tr>
+              <td className="label">User Designation</td>
+              <td>{req.userDesignation || "—"}</td>
+            </tr>
+            <tr>
               <td className="label">Institutional Email ID</td>
               <td>{req.institutionalEmail}</td>
             </tr>
             <tr>
               <td className="label">Mobile Number (Aadhar Linked)</td>
               <td>{req.mobileNumber}</td>
+            </tr>
+            <tr>
+              <td className="label">Aadhar Number</td>
+              <td>{req.aadharNumber || "—"}</td>
             </tr>
             <tr>
               <td className="label">Date of Birth</td>

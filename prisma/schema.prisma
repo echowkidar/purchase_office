@@ -226,8 +226,10 @@ model GemRequest {
   // Form fields
   unitName        String
   userName        String
+  userDesignation String?
   institutionalEmail String
   mobileNumber    String
+  aadharNumber    String?
   dateOfBirth     String?
   dateOfRetirement String?
   roleToAssign    String           

@@ -75,8 +75,8 @@ export async function PATCH(
     // Dept user can update form fields on DRAFT
     if (session.user.role === "DEPT_USER" && existing.status === "DRAFT") {
       const deptFields = [
-        "requestType", "unitName", "userName", "institutionalEmail", "mobileNumber",
-        "dateOfBirth", "dateOfRetirement", "roleToAssign", "hasExistingNicEmail",
+        "requestType", "unitName", "userName", "userDesignation", "institutionalEmail", "mobileNumber",
+        "aadharNumber", "dateOfBirth", "dateOfRetirement", "roleToAssign", "hasExistingNicEmail",
         "existingNicEmail", "oldGemId", "lastUserName", "idRequiredFor",
         "projectName", "fundedBy", "projectCode", "hodName", "hodDesignation", "hodPhone",
       ];

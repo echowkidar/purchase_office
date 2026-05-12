@@ -32,8 +32,10 @@ interface FormData {
   requestType: "CREATE" | "REPLACE";
   unitName: string;
   userName: string;
+  userDesignation: string;
   institutionalEmail: string;
   mobileNumber: string;
+  aadharNumber: string;
   dateOfBirth: string;
   dateOfRetirement: string;
   roleToAssign: string;
@@ -61,8 +63,10 @@ export default function NewGemRequestPage() {
     requestType: "CREATE",
     unitName: "",
     userName: "",
+    userDesignation: "",
     institutionalEmail: "",
     mobileNumber: "",
+    aadharNumber: "",
     dateOfBirth: "",
     dateOfRetirement: "",
     roleToAssign: "",
@@ -216,6 +220,16 @@ export default function NewGemRequestPage() {
             />
           </div>
           <div>
+            <label className={labelClass}>User Designation</label>
+            <input
+              type="text"
+              value={form.userDesignation}
+              onChange={(e) => update("userDesignation", e.target.value)}
+              placeholder="Designation of the user"
+              className={inputClass}
+            />
+          </div>
+          <div>
             <label className={labelClass}>Institutional Email ID *</label>
             <input
               type="email"
@@ -232,6 +246,16 @@ export default function NewGemRequestPage() {
               value={form.mobileNumber}
               onChange={(e) => update("mobileNumber", e.target.value)}
               placeholder="10-digit mobile number"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Aadhar Number</label>
+            <input
+              type="text"
+              value={form.aadharNumber}
+              onChange={(e) => update("aadharNumber", e.target.value)}
+              placeholder="12-digit Aadhar number"
               className={inputClass}
             />
           </div>

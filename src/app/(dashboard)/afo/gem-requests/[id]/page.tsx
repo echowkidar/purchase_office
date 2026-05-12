@@ -25,8 +25,10 @@ interface GemRequest {
   status: "DRAFT" | "SUBMITTED" | "IN_PROGRESS" | "COMPLETED" | "REJECTED";
   unitName: string;
   userName: string;
+  userDesignation?: string;
   institutionalEmail: string;
   mobileNumber: string;
+  aadharNumber?: string;
   dateOfBirth?: string;
   dateOfRetirement?: string;
   roleToAssign: string;
@@ -253,8 +255,10 @@ export default function AFOGemRequestDetailPage() {
           <InfoRow label="Requestor Email" value={req.requestedBy.email} />
           <InfoRow label="Name of Unit" value={req.unitName} />
           <InfoRow label="Name of User" value={req.userName} />
+          <InfoRow label="User Designation" value={req.userDesignation} />
           <InfoRow label="Institutional Email" value={req.institutionalEmail} />
           <InfoRow label="Mobile Number" value={req.mobileNumber} />
+          <InfoRow label="Aadhar Number" value={req.aadharNumber} />
           <InfoRow label="Date of Birth" value={req.dateOfBirth} />
           <InfoRow label="Date of Retirement" value={req.dateOfRetirement} />
           <InfoRow label="Role to Assign" value={req.roleToAssign} />
