@@ -135,10 +135,14 @@ export async function POST(request: Request) {
             relatedId: gemRequest.id,
           },
         });
-        // Send email alert to AFO
+      }
+
+      // Send ONE alert email to the configured admin address (not per-user to save quota)
+      const adminEmail = process.env.ADMIN_ALERT_EMAIL || process.env.SMTP_USER;
+      if (adminEmail) {
         try {
           await sendEmail({
-            to: staff.email,
+            to: adminEmail,
             ...emailNewIndentAlert(requisitionNo, user.department.name, 0),
           });
         } catch (e) {
