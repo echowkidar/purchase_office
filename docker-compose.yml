@@ -20,7 +20,8 @@ services:
       SMTP_PORT: "587"
       SMTP_USER: "${SMTP_USER:-}"
       SMTP_PASS: "${SMTP_PASS:-}"
-      SMTP_FROM: "${SMTP_FROM:-CPO AMU <noreply@amu.ac.in>}"
+      SMTP_FROM: "${SMTP_FROM:-CPO AMU <dak.purchaseoffice@gmail.com>}"
+      ADMIN_ALERT_EMAIL: "${ADMIN_ALERT_EMAIL:-}"
       NEXT_PUBLIC_APP_NAME: "AMU CPO Procurement Portal"
     volumes:
       - cpo_uploads:/app/public/uploads
