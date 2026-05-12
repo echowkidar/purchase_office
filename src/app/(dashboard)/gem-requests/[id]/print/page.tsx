@@ -75,7 +75,7 @@ export default function GemRequestPrintPage() {
       <style>{`
         @page {
           size: A4 portrait;
-          margin: 0;
+          margin: 10mm 13mm 8mm 13mm;
         }
 
         * {
@@ -84,9 +84,9 @@ export default function GemRequestPrintPage() {
           padding: 0;
         }
 
-        body {
+        html, body {
           font-family: 'Times New Roman', Times, serif;
-          font-size: 11pt;
+          font-size: 10.5pt;
           color: #000;
           background: #fff;
         }
@@ -100,148 +100,161 @@ export default function GemRequestPrintPage() {
 
         #print-area {
           width: 100%;
-          max-width: 190mm;
+          max-width: 184mm;
           margin: 0 auto;
-          padding: 0;
         }
 
         .letterhead {
           text-align: center;
           border-bottom: 2px solid #1B4332;
-          padding-bottom: 5px;
-          margin-bottom: 8px;
+          padding-bottom: 4px;
+          margin-bottom: 7px;
         }
 
         .letterhead .university {
-          font-size: 8pt;
+          font-size: 7.5pt;
           letter-spacing: 1.5px;
           color: #333;
-          margin-bottom: 2px;
+          margin-bottom: 1px;
         }
 
         .letterhead h1 {
-          font-size: 13pt;
+          font-size: 12.5pt;
           font-weight: bold;
           color: #1B4332;
-          margin: 2px 0;
+          margin: 1px 0;
         }
 
         .letterhead .subtitle {
-          font-size: 8pt;
+          font-size: 7.5pt;
           color: #555;
         }
 
         .address-block {
-          margin-bottom: 6px;
-          font-size: 10pt;
-          line-height: 1.4;
+          margin-bottom: 5px;
+          font-size: 9.5pt;
+          line-height: 1.35;
         }
 
         .address-block p { margin: 0; }
 
         .subject-line {
-          margin: 5px 0 3px;
-          font-size: 10pt;
-          padding-left: 16px;
+          margin: 4px 0 2px;
+          font-size: 9.5pt;
+          padding-left: 14px;
         }
 
         .ref-line {
-          font-size: 10pt;
-          margin-bottom: 5px;
-          padding-left: 16px;
+          font-size: 9.5pt;
+          margin-bottom: 4px;
+          padding-left: 14px;
         }
 
         .body-text {
-          font-size: 10pt;
-          margin-bottom: 6px;
-          line-height: 1.4;
+          font-size: 9.5pt;
+          margin-bottom: 5px;
+          line-height: 1.35;
         }
 
         .details-table {
           width: 100%;
           border-collapse: collapse;
-          margin-bottom: 7px;
-          font-size: 9.5pt;
+          margin-bottom: 6px;
+          font-size: 9pt;
         }
 
         .details-table td {
           border: 1px solid #000;
-          padding: 3px 7px;
+          padding: 2.5px 6px;
           vertical-align: top;
+          background: #fff !important;
         }
 
         .details-table .label {
           font-weight: bold;
           width: 42%;
-          background: transparent;
+          background: #fff !important;
         }
 
         .undertaking-box {
           border: 1px solid #000;
-          padding: 5px 8px;
-          margin-bottom: 7px;
-          font-size: 9pt;
-          line-height: 1.4;
+          padding: 4px 7px;
+          margin-bottom: 5px;
+          font-size: 8.5pt;
+          line-height: 1.3;
+          background: #fff !important;
         }
 
         .undertaking-box .ut-title {
           font-weight: bold;
-          font-size: 9.5pt;
-          margin-bottom: 3px;
+          font-size: 9pt;
+          margin-bottom: 2px;
           text-decoration: underline;
         }
 
         .undertaking-box ol {
-          padding-left: 16px;
-          margin: 3px 0 0;
+          padding-left: 15px;
+          margin: 2px 0 0;
         }
 
         .undertaking-box li {
-          margin-bottom: 1px;
+          margin-bottom: 0.5px;
         }
 
         .signature-table {
           width: 100%;
           border-collapse: collapse;
-          margin-bottom: 6px;
-          font-size: 9.5pt;
+          margin-bottom: 4px;
+          font-size: 9pt;
         }
 
         .signature-table td {
           border: 1px solid #000;
-          padding: 5px 8px;
+          padding: 4px 7px;
           vertical-align: top;
           width: 50%;
+          background: #fff !important;
         }
 
         .sig-space {
-          height: 28px;
+          height: 24px;
           display: block;
         }
 
         .footer-bar {
           text-align: center;
-          font-size: 7.5pt;
+          font-size: 7pt;
           color: #666;
           border-top: 1px solid #ccc;
-          padding-top: 3px;
-          margin-top: 3px;
+          padding-top: 2px;
+          margin-top: 2px;
         }
 
         @media print {
           #no-print { display: none !important; }
-          body { 
-            -webkit-print-color-adjust: exact; 
-            print-color-adjust: exact; 
-            padding: 10mm 12mm 10mm 12mm;
+          html, body {
+            background: #fff !important;
+            -webkit-print-color-adjust: economy;
+            print-color-adjust: economy;
+          }
+          * {
+            background: #fff !important;
+            -webkit-print-color-adjust: economy;
+            print-color-adjust: economy;
+          }
+          .details-table td,
+          .details-table .label,
+          .undertaking-box,
+          .signature-table td {
+            background: #fff !important;
           }
         }
 
         @media screen {
-          body { background: #e8e8e8; }
+          body { background: #d8d8d8; }
           #print-area {
             background: #fff;
-            padding: 15mm 12mm;
+            padding: 13mm 11mm;
             margin: 20px auto;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
           }
