@@ -1,16 +1,19 @@
 import nodemailer from "nodemailer";
+import type SMTPTransport from "nodemailer/lib/smtp-transport";
 
-const transporter = nodemailer.createTransport({
+const transportConfig: SMTPTransport.Options = {
   host: process.env.SMTP_HOST || "smtp.gmail.com",
   port: Number(process.env.SMTP_PORT) || 587,
   secure: false,
-  pool: false,          // no connection pooling → no silent retries
-  socketTimeout: 5000,  // fail fast — 5s timeout
+  connectionTimeout: 5000,  // fail fast — 5s timeout
+  greetingTimeout: 5000,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
-});
+};
+
+const transporter = nodemailer.createTransport(transportConfig);
 
 interface EmailOptions {
   to: string;
