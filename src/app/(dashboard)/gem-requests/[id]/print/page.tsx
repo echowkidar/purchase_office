@@ -288,7 +288,7 @@ export default function GemRequestPrintPage() {
         </p>
 
         <p className="body-text">
-          With due respect, it is requested that the GeM Portal User ID may kindly be{" "}
+          It is requested that the GeM Portal User ID may kindly be{" "}
           {req.requestType === "CREATE" ? "created" : "replaced"} for the following user:
         </p>
 
@@ -296,56 +296,56 @@ export default function GemRequestPrintPage() {
         <table className="details-table">
           <tbody>
             <tr>
-              <td className="label">1. Name of Unit/Department</td>
+              <td className="label">Name of Unit/Department</td>
               <td>{req.unitName}</td>
             </tr>
             <tr>
-              <td className="label">2. Name of User</td>
+              <td className="label">Name of User</td>
               <td>{req.userName}</td>
             </tr>
             <tr>
-              <td className="label">3. Institutional Email ID</td>
+              <td className="label">Institutional Email ID</td>
               <td>{req.institutionalEmail}</td>
             </tr>
             <tr>
-              <td className="label">4. Mobile Number</td>
+              <td className="label">Mobile Number (Aadhar Linked)</td>
               <td>{req.mobileNumber}</td>
             </tr>
             <tr>
-              <td className="label">5. Date of Birth</td>
+              <td className="label">Date of Birth</td>
               <td>{req.dateOfBirth || "—"}</td>
             </tr>
             <tr>
-              <td className="label">6. Date of Retirement</td>
+              <td className="label">Date of Retirement</td>
               <td>{req.dateOfRetirement || "—"}</td>
             </tr>
             <tr>
-              <td className="label">7. Role to be Assigned on GeM</td>
+              <td className="label">Role to be Assigned on GeM</td>
               <td>{req.roleToAssign}</td>
             </tr>
             <tr>
-              <td className="label">8. Existing Govt./NIC Email</td>
+              <td className="label">Existing Govt./NIC Email</td>
               <td>{req.hasExistingNicEmail ? `Yes — ${req.existingNicEmail || ""}` : "No"}</td>
             </tr>
             <tr>
-              <td className="label">9. Purpose / ID Required For</td>
+              <td className="label">Purpose / ID Required For</td>
               <td>{req.idRequiredFor || "—"}</td>
             </tr>
             {req.requestType === "REPLACE" && (
               <>
                 <tr>
-                  <td className="label">10. Old GeM ID</td>
+                  <td className="label">Old GeM ID</td>
                   <td>{req.oldGemId || "—"}</td>
                 </tr>
                 <tr>
-                  <td className="label">11. Name of Previous User</td>
+                  <td className="label">Name of Previous User</td>
                   <td>{req.lastUserName || "—"}</td>
                 </tr>
               </>
             )}
             {projectDetails && (
               <tr>
-                <td className="label">12. Project Details</td>
+                <td className="label">Project Details</td>
                 <td>{projectDetails}</td>
               </tr>
             )}
