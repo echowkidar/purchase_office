@@ -220,22 +220,21 @@ export function emailPasswordResetOtp(otp: string) {
 
 export function emailGemRequestSubmitted(reqNo: string, deptName: string, requestType: string) {
   return {
-    subject: `GeM Portal ID Request Submitted - ${reqNo}`,
+    subject: `AMU CPO - GeM Request Acknowledgement: ${reqNo}`,
     html: `
       <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #1B4332; color: white; padding: 20px; text-align: center;">
           <h2 style="margin: 0;">AMU Central Purchase Office</h2>
         </div>
         <div style="padding: 20px; background: #f9f9f9;">
-          <h3>GeM Request Submitted Successfully</h3>
-          <p>Your request for GeM Portal User ID (${requestType}) has been submitted to the Central Purchase Office.</p>
+          <h3>Request Received</h3>
+          <p>Your GeM Portal User ID request (${requestType}) has been received by the Central Purchase Office and is under review.</p>
           <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
-            <tr><td style="padding: 8px; font-weight: bold;">Requisition No:</td><td style="padding: 8px;">${reqNo}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Reference No:</td><td style="padding: 8px;">${reqNo}</td></tr>
             <tr><td style="padding: 8px; font-weight: bold;">Department:</td><td style="padding: 8px;">${deptName}</td></tr>
-            <tr><td style="padding: 8px; font-weight: bold;">Type:</td><td style="padding: 8px;">${requestType}</td></tr>
-            <tr><td style="padding: 8px; font-weight: bold;">Status:</td><td style="padding: 8px;">Submitted</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Request Type:</td><td style="padding: 8px;">${requestType}</td></tr>
           </table>
-          <p>You will be notified once the CPO processes your request.</p>
+          <p>You will receive further communication once the AFO team processes this request.</p>
         </div>
         <div style="background: #1B4332; color: #C9A84C; padding: 10px; text-align: center; font-size: 12px;">
           Aligarh Muslim University, Aligarh
@@ -256,39 +255,32 @@ export function emailGemCredentials(params: {
   date: string;
 }) {
   return {
-    subject: `Your GeM Portal Login Credentials - ${params.reqNo}`,
+    subject: `AMU CPO - GeM Portal Access Activated: ${params.reqNo}`,
     html: `
       <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #1B4332; color: white; padding: 20px; text-align: center;">
           <h2 style="margin: 0;">AMU Central Purchase Office</h2>
         </div>
         <div style="padding: 20px; background: #f9f9f9;">
-          <h3>GeM Portal Credentials Created</h3>
+          <h3>GeM Portal Account Activated</h3>
           <p>Dear ${params.userName},</p>
-          <p>Your GeM Portal User ID has been successfully created/updated based on your request.</p>
+          <p>Your GeM Portal account has been set up by the Central Purchase Office. Please contact the AFO office to collect your access details in person for security reasons.</p>
           
           <table style="width: 100%; border-collapse: collapse; margin: 15px 0; background: white; border: 1px solid #ddd;">
             <tr><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Name</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${params.userName}</td></tr>
             <tr><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Designation</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${params.designation || 'N/A'}</td></tr>
-            <tr><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Phone</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${params.phone || 'N/A'}</td></tr>
             <tr><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">GeM Role</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${params.gemRole}</td></tr>
-            <tr><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #1B4332;">GeM Login ID</td><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">${params.gemLoginId}</td></tr>
-            ${params.gemPassword ? `<tr><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #1B4332;">Password</td><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">${params.gemPassword}</td></tr>` : ''}
+            <tr><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">GeM Login ID (Email)</td><td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">${params.gemLoginId}</td></tr>
           </table>
 
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="https://gem.gov.in/" style="background: #1B4332; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to GeM Portal</a>
+          <div style="text-align: center; margin: 25px 0;">
+            <a href="https://gem.gov.in/" style="background: #1B4332; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Visit GeM Portal</a>
           </div>
           
-          <div style="background: #fff3cd; color: #856404; padding: 15px; border-left: 4px solid #ffeeba; margin-top: 20px; font-size: 13px;">
-            <strong>Security Advisory:</strong>
-            <ul style="margin-top: 5px; margin-bottom: 0; padding-left: 20px;">
-              <li>Please change your password immediately upon first login.</li>
-              <li>Keep your credentials secure and do not share them.</li>
-              <li>Notify CPO immediately upon retirement or transfer.</li>
-            </ul>
+          <div style="background: #e8f5e9; color: #2e7d32; padding: 12px; border-left: 4px solid #4caf50; margin-top: 15px; font-size: 13px;">
+            <strong>Important:</strong> Please set a strong account access key upon first login and keep it confidential. Notify CPO immediately upon any change in your service status.
           </div>
-          <p style="font-size: 12px; color: #666; margin-top: 20px;">Ref: ${params.reqNo} | Date: ${params.date}</p>
+          <p style="font-size: 12px; color: #666; margin-top: 15px;">Reference: ${params.reqNo} | Processed: ${params.date}</p>
         </div>
         <div style="background: #1B4332; color: #C9A84C; padding: 10px; text-align: center; font-size: 12px;">
           Aligarh Muslim University, Aligarh
@@ -299,8 +291,8 @@ export function emailGemCredentials(params: {
 }
 
 export function emailGemRequestStatusUpdate(reqNo: string, status: string, remark?: string) {
-  let statusColor = status === 'IN_PROGRESS' ? '#f59e0b' : status === 'REJECTED' ? '#ef4444' : '#10b981';
-  let statusText = status === 'IN_PROGRESS' ? 'In Progress' : status === 'REJECTED' ? 'Rejected' : 'Completed';
+  const statusColor = status === 'IN_PROGRESS' ? '#f59e0b' : status === 'REJECTED' ? '#ef4444' : '#10b981';
+  const statusText = status === 'IN_PROGRESS' ? 'In Progress' : status === 'REJECTED' ? 'Rejected' : 'Completed';
 
   return {
     subject: `GeM Request Update: ${statusText} - ${reqNo}`,
