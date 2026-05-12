@@ -13,12 +13,9 @@ import {
 } from "lucide-react";
 
 const GEM_ROLES = [
-  "Primary Buyer",
-  "Secondary Buyer",
+  "Buyer",
   "Consignee",
   "PAO (Payment Authority)",
-  "GeM Admin",
-  "Other",
 ];
 
 const UNDERTAKING_TEXT = `I/We hereby undertake that:
@@ -170,11 +167,10 @@ export default function NewGemRequestPage() {
                 key={type}
                 type="button"
                 onClick={() => update("requestType", type)}
-                className={`flex-1 py-3 rounded-xl border-2 font-medium text-sm transition-all ${
-                  form.requestType === type
-                    ? "border-amu-green bg-amu-green/5 text-amu-green"
-                    : "border-gray-200 text-gray-500 hover:border-gray-300"
-                }`}
+                className={`flex-1 py-3 rounded-xl border-2 font-medium text-sm transition-all ${form.requestType === type
+                  ? "border-amu-green bg-amu-green/5 text-amu-green"
+                  : "border-gray-200 text-gray-500 hover:border-gray-300"
+                  }`}
               >
                 {type === "CREATE" ? "🆕 Create New ID" : "🔄 Replace Existing ID"}
               </button>
@@ -298,11 +294,10 @@ export default function NewGemRequestPage() {
                   key={String(val)}
                   type="button"
                   onClick={() => update("hasExistingNicEmail", val)}
-                  className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-all ${
-                    form.hasExistingNicEmail === val
-                      ? "border-amu-green bg-amu-green/5 text-amu-green"
-                      : "border-gray-200 text-gray-500"
-                  }`}
+                  className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-all ${form.hasExistingNicEmail === val
+                    ? "border-amu-green bg-amu-green/5 text-amu-green"
+                    : "border-gray-200 text-gray-500"
+                    }`}
                 >
                   {val ? "Yes" : "No"}
                 </button>
@@ -442,11 +437,10 @@ export default function NewGemRequestPage() {
               className="sr-only"
             />
             <div
-              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                undertakingAccepted
-                  ? "bg-amu-green border-amu-green"
-                  : "border-gray-300 group-hover:border-amu-green/50"
-              }`}
+              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${undertakingAccepted
+                ? "bg-amu-green border-amu-green"
+                : "border-gray-300 group-hover:border-amu-green/50"
+                }`}
             >
               {undertakingAccepted && <CheckSquare size={12} className="text-white" />}
             </div>
